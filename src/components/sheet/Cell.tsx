@@ -1,6 +1,5 @@
 import { CellContext } from "@tanstack/react-table";
 import * as React from "react";
-import { Input } from "@/src/components/ui/input";
 
 interface EditableCellProps<TData, TValue> extends CellContext<TData, TValue> {
   renderInput: (props: {
@@ -108,7 +107,7 @@ export default function Cell<TData, TValue>({
             onKeyDown: handleKeyDownEdit,
             cancelEditing,
             className: "font-normal bg-transparent w-full h-full py-[5px] border-none rounded-none focus:ring-3 focus:ring-blue-400 focus-visible:ring-blue-400 focus-visible:ring-offset-0 hover:bg-transparent text-xs",
-            ref: inputRef // yo?
+            ref: inputRef
           })}
         </div>
       ) : (

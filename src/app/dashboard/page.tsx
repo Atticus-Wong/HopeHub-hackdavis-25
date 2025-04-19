@@ -1,6 +1,8 @@
 'use client';
 import { DataTable as DataTableType, AGEGROUP } from "@/types/types";
 import DataTable from "@/components/sheet/DataTable";
+import ProfileCard from "@/components/ProfileCard";
+import React from "react";
 
 // Sample data - replace with your actual data fetching logic
 const defaultData: DataTableType[] = [
@@ -11,7 +13,11 @@ const defaultData: DataTableType[] = [
 ];
 
 export default function Dashboard() {
+  const [profileCardData, setProfileCardData] = React.useState<DataTableType | null>(defaultData[0]);
   return (
-    <DataTable data={defaultData} />
+    <>
+      <DataTable data={defaultData} />
+      <ProfileCard data={profileCardData} />
+    </>
   )
 }
