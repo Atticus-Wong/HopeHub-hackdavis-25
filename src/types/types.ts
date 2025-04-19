@@ -3,32 +3,33 @@
 // view only for a sheet
 
 export type DataTable = {
-  uuid: string
-  name: string
-  ethnicity: string
-  gender: string
-  ageGroup: AGEGROUP
+  uuid: string;
+  name: string;
+  ethnicity: string;
+  gender: string;
+  ageGroup: AGEGROUP;
   benefits: {
-    SERVICES: number
-  }[]
-  location: string
-  createAt: string
-  updatedAt: string
+    name: SERVICES;
+    value: number;
+  }[];
+  location: string;
+  createAt: string;
+  updatedAt: string;
   stayDuration?: {
-    start: string
-    end: string
-  }
-}
+    start: string;
+    end: string;
+  };
+};
 
 export enum AGEGROUP {
-  'MINOR' = 'minor',
-  'ADULT' = 'adult',
-  'SENIOR' = 'senior',
+  "MINOR" = "minor",
+  "ADULT" = "adult",
+  "SENIOR" = "senior",
 }
 
-export type SERVICES = 'SHOWER' | 'LAUNDRY' | 'MNGMT'
+export type SERVICES = "SHOWER" | "LAUNDRY" | "MNGMT";
 
-export type Journeys = {}
+export type Journeys = {};
 
 // name Joe
 // beneiftse: {
