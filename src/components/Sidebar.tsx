@@ -16,12 +16,13 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Home, User, Settings, LogOut, PanelLeft, MessageSquare, LayoutDashboard, BookOpenText } from "lucide-react";
+import { Home, User, Settings, LogOut, PanelLeft, MessageSquare, LayoutDashboard, BookOpenText, Lightbulb } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useIsExpanded } from '@/lib/atom';
 
 export function AccountSidebar() {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useIsExpanded();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -68,17 +69,25 @@ export function AccountSidebar() {
       <SidebarContent className="flex-grow">
         <SidebarGroup>
           <nav className="space-y-1 p-2">
-            <Link href="/account" className={`flex items-center rounded-md text-sm hover:bg-secondary ${isExpanded ? 'space-x-3 p-2' : 'w-8 h-8 justify-center p-0'}`}>
+            <Link href="/dashboard" className={`flex items-center rounded-md text-sm hover:bg-secondary ${isExpanded ? 'space-x-3 p-2' : 'w-8 h-8 justify-center p-0'}`}>
               <LayoutDashboard className="h-5 w-5 min-w-[20px]" />
               <span className={`transition-opacity duration-100 ${isExpanded ? 'opacity-100 delay-75' : 'opacity-0 w-0'}`}>Dashboard</span>
             </Link>
-            <Link href="/account/session" className={`flex items-center rounded-md text-sm hover:bg-secondary ${isExpanded ? 'space-x-3 p-2' : 'w-8 h-8 justify-center p-0'}`}>
-              <BookOpenText className="h-5 w-5 min-w-[20px]" />
-              <span className={`transition-opacity duration-100 ${isExpanded ? 'opacity-100 delay-75' : 'opacity-0 w-0'}`}>Sessions</span>
+            <Link href="/announcements" className={`flex items-center rounded-md text-sm hover:bg-secondary ${isExpanded ? 'space-x-3 p-2' : 'w-8 h-8 justify-center p-0'}`}>
+              <LayoutDashboard className="h-5 w-5 min-w-[20px]" />
+              <span className={`transition-opacity duration-100 ${isExpanded ? 'opacity-100 delay-75' : 'opacity-0 w-0'}`}>Announcements</span>
             </Link>
-            <Link href="/account/chat" className={`flex items-center rounded-md text-sm hover:bg-secondary ${isExpanded ? 'space-x-3 p-2' : 'w-8 h-8 justify-center p-0'}`}>
+            <Link href="/analytics" className={`flex items-center rounded-md text-sm hover:bg-secondary ${isExpanded ? 'space-x-3 p-2' : 'w-8 h-8 justify-center p-0'}`}>
+              <LayoutDashboard className="h-5 w-5 min-w-[20px]" />
+              <span className={`transition-opacity duration-100 ${isExpanded ? 'opacity-100 delay-75' : 'opacity-0 w-0'}`}>Analytics</span>
+            </Link>
+            <Link href="/messages" className={`flex items-center rounded-md text-sm hover:bg-secondary ${isExpanded ? 'space-x-3 p-2' : 'w-8 h-8 justify-center p-0'}`}>
               <MessageSquare className="h-5 w-5 min-w-[20px]" />
-              <span className={`transition-opacity duration-100 ${isExpanded ? 'opacity-100 delay-75' : 'opacity-0 w-0'}`}>Talk to Minerva</span>
+              <span className={`transition-opacity duration-100 ${isExpanded ? 'opacity-100 delay-75' : 'opacity-0 w-0'}`}>Messages</span>
+            </Link>
+            <Link href="/management" className={`flex items-center rounded-md text-sm hover:bg-secondary ${isExpanded ? 'space-x-3 p-2' : 'w-8 h-8 justify-center p-0'}`}>
+              <Lightbulb className="h-5 w-5 min-w-[20px]" />
+              <span className={`transition-opacity duration-100 ${isExpanded ? 'opacity-100 delay-75' : 'opacity-0 w-0'}`}>Case management</span>
             </Link>
             <Link href="/settings" className={`flex items-center rounded-md text-sm hover:bg-secondary ${isExpanded ? 'space-x-3 p-2' : 'w-8 h-8 justify-center p-0'}`}>
               <Settings className="h-5 w-5 min-w-[20px]" />

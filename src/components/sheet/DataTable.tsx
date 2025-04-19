@@ -37,6 +37,10 @@ export default function DataTable({ data }: DataTableProps) {
   const [globalFilter, setGlobalFilter] = React.useState(''); // State for the global filter value
   const [profileData, setProfileData] = useProfileData(); // Use the atom for profile data
 
+  React.useEffect(() => {
+    console.log(profileData)
+  }, [profileData])
+
 
   // Define columns using EditableCell
   const columns = React.useMemo<ColumnDef<DataTableType, any>[]>(
@@ -95,12 +99,12 @@ export default function DataTable({ data }: DataTableProps) {
       const selectedData = data.find(item => item.uuid === selectedRow.original.uuid);
       setProfileData(selectedData || null); // Update profile data atom
     } else {
-      setProfileData(null); // Clear profile data if no row is selected
+      setProfileData(null);
     }
   }, [table.getSelectedRowModel().flatRows, data, setProfileData]); // Update effect dependencies
 
   return (
-    <div className="p-4"> {/* Add some padding around the component */}
+    <div className="py-4"> {/* Add some padding around the component */}
       <div className="mb-4"> {/* Margin below the search input */}
         <Input
           placeholder="Search names..."
@@ -134,7 +138,15 @@ export default function DataTable({ data }: DataTableProps) {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="hover:bg-gray-50" data-state={row.getIsSelected() && 'selected'}>
+              <tr
+                key={row.id}
+                className="hover:bg-gray-50"
+                data-state={row.getIsSelected() && 'selected'}
+                onClick={() => {
+                  setProfileData(row.original)
+                }
+                } // Add this onClick handler
+              >
                 {row.getVisibleCells().map((cell) => (
                   <td
                     key={cell.id}

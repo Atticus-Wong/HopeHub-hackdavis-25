@@ -7,7 +7,12 @@ export default function AccountLayout({
 }) {
   return (
     <SidebarProvider>
+      <div className="absolute top-0 left-0 h-full">
+        <AccountSidebar />
+      </div>
+      <main className=" w-full h-full">
         {children}
+      </main>
     </SidebarProvider>
   )
 }
