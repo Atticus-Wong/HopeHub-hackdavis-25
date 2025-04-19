@@ -6,6 +6,7 @@ export type DataTable = {
   uuid: string
   name: string
   ethnicity: string
+  gender: string
   ageGroup: AGEGROUP
   benefits: {
     SERVICES: number
@@ -13,12 +14,10 @@ export type DataTable = {
   location: string
   createAt: string
   updatedAt: string
-  Journeys: {
-    housingSecure: boolean
-    housingEnrollment: boolean
-    notes?: string
+  stayDuration?: {
+    start: string
+    end: string
   }
-  // track how long someone is staying for
 }
 
 export enum AGEGROUP {
