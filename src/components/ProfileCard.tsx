@@ -10,13 +10,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card" // Import Card components
+import { useProfileData } from "@/lib/atom";
 
 type ProfileCardProps = {
   data: DataTableType | null
 }
 
 
-export default function ProfileCard({ data }: ProfileCardProps) {
+
+export default function ProfileCard() {
+  const [data, setData] = useProfileData();
   return (
     // Use the Card component as the main container
     <Card className="w-[350px]"> {/* You might want to adjust width as needed */}
@@ -26,21 +29,18 @@ export default function ProfileCard({ data }: ProfileCardProps) {
       </CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground">Age Group: {data?.ageGroup}</p>
-        {/* Add more fields from 'data' as needed */}
-        {/* Example: <p className="text-sm text-muted-foreground">Ethnicity: {data.ethnicity}</p> */}
-        {/* Example: Display benefits if available */}
-        {/* {data.benefits && data.benefits.length > 0 && (
-          <div>
-            <h3 className="text-md font-semibold mt-2">Benefits:</h3>
-            <ul>
-              {data.benefits.map((benefit, index) => (
-                <li key={index} className="text-sm text-muted-foreground">
-                  Service {Object.values(benefit)[0]}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )} */}
+        <p>Services</p>
+        {data?.benefits.map((benefitObj, idx) => {
+          // Assuming each object in the benefits array has one key-value pair
+          const entry = Object.entries(benefitObj)[idx];
+          if (!entry) return null; // Skip if the object is empty
+          const [name, quantity] = entry;
+          return (
+            <div key={idx} className="flex items-center justify-between text-sm text-muted-foreground mt-1">
+              {`${benefitObj.name}: ${benefitObj.value}`}
+            </div>
+          );
+        })}
       </CardContent>
       {/* Optionally, add a CardFooter for actions or less important info */}
       {/* <CardFooter>

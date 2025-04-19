@@ -1,5 +1,4 @@
-// install zod
-
+import { SERVICES } from './enums'
 // view only for a sheet
 
 export type DataTable = {
@@ -9,7 +8,8 @@ export type DataTable = {
   gender: string
   ageGroup: AGEGROUP
   benefits: {
-    SERVICES: number
+    name: SERVICES
+    value: number
   }[]
   location: string
   createAt: string
@@ -26,13 +26,9 @@ export enum AGEGROUP {
   'SENIOR' = 'senior',
 }
 
-export type SERVICES = 'SHOWER' | 'LAUNDRY' | 'MNGMT'
-
-export type Journeys = {}
-
-// name Joe
-// beneiftse: {
-// .   "shower": 10
-//
-
-// keep in mind: serviceTypes
+export type providedServices = {
+  name: string
+  status: 'online' | 'offline'
+  lastSeen: string
+  timeCompleted: string
+}

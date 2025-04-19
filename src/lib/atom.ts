@@ -10,3 +10,6 @@ export const useProfileData = () => useAtom(profileDataAtom)
 
 const dataTableAtom = atom<DataTableType[]>([])
 export const useDataTable = () => useAtom(dataTableAtom)
+
+const isExpandedAtom = atom(false)
+export const useIsExpanded = () => useAtom(isExpandedAtom)
