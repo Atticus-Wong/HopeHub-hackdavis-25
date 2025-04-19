@@ -2,11 +2,11 @@ import { SERVICES } from './enums'
 // view only for a sheet
 
 export type DataTable = {
-  uuid: string
-  name: string
-  ethnicity: string
-  gender: string
-  ageGroup: AGEGROUP
+  uuid: string;
+  name: string;
+  ethnicity: string;
+  gender: string;
+  ageGroup: AGEGROUP;
   benefits: {
     name: SERVICES
     value: number
@@ -15,15 +15,15 @@ export type DataTable = {
   createAt: string
   updatedAt: string
   stayDuration?: {
-    start: string
-    end: string
-  }
-}
+    start: string;
+    end: string;
+  };
+};
 
 export enum AGEGROUP {
-  'MINOR' = 'minor',
-  'ADULT' = 'adult',
-  'SENIOR' = 'senior',
+  "MINOR" = "minor",
+  "ADULT" = "adult",
+  "SENIOR" = "senior",
 }
 
 export type providedServices = {
