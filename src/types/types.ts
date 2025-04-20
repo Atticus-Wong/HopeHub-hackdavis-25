@@ -1,33 +1,33 @@
-import { SERVICES } from './enums'
+import { SERVICES } from "./enums";
 // view only for a sheet
 
 export type DataTable = {
-  uuid: string
-  name: string // maria
-  ethnicity: string
-  gender: string
-  ageGroup: AGEGROUP
+  uuid: string;
+  name: string; // maria
+  ethnicity: string;
+  gender: string;
+  ageGroup: AGEGROUP;
   benefits: {
-    name: SERVICES
-    value: number
-  }[]
-  createAt: string
-  updatedAt: string
+    name: SERVICES;
+    value: number;
+  }[];
+  createAt: string;
+  updatedAt: string;
   stayDuration?: {
-    start: string
-    end: string
-  }
-}
+    start: string;
+    end: string;
+  };
+};
 
 export enum AGEGROUP {
-  'MINOR' = 'minor',
-  'ADULT' = 'adult',
-  'SENIOR' = 'senior',
+  "MINOR" = "minor",
+  "ADULT" = "adult",
+  "SENIOR" = "senior",
 }
 
 export type BaseQueue = {
-  type: SERVICES
-  name: string
-  uuid: string
-  createdAt: string
-}
+  type: SERVICES;
+  name: string;
+  uuid: string;
+  createdAt: string;
+};

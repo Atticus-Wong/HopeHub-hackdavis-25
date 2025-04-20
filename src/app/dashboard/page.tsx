@@ -1,26 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/firebase/config";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Menu } from "lucide-react";
+import { DataTable } from "@/types/client";
 
-/* ─── Mock client directory (id + name) ─── */
-const CLIENTS = [
-  { id: "1", name: "Jane Doe" },
-  { id: "2", name: "Bob Dylan" },
-  { id: "3", name: "Atticus" },
-  { id: "4", name: "Marla" },
-  { id: "5", name: "Zed" },
-  { id: "6", name: "Angela" },
-  { id: "7", name: "David" },
-  { id: "8", name: "Arjun" },
-  { id: "9", name: "Maya" },
-];
+// /* ─── Mock client directory (id + name) ─── */
+// const CLIENTS = [
+//   { id: "1", name: "Jane Doe" },
+//   { id: "2", name: "Bob Dylan" },
+//   { id: "3", name: "Atticus" },
+//   { id: "4", name: "Marla" },
+//   { id: "5", name: "Zed" },
+//   { id: "6", name: "Angela" },
+//   { id: "7", name: "David" },
+//   { id: "8", name: "Arjun" },
+//   { id: "9", name: "Maya" },
+// ];
 
 /* ─── Dashboard mock panels ─── */
 const MOCK_ANNOUNCEMENTS = [
@@ -59,23 +62,52 @@ const fadeUp = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
 };
 
+type ClientLite = { id: string; name: string };
+
 export default function Dashboard() {
   const [term, setTerm] = useState("");
   const [dropdown, setDropdown] = useState(false);
+  const [directory, setDirectory] = useState<ClientLite[]>([]);
   const router = useRouter();
 
+  useEffect(() => {
+    const fetchClients = async () => {
+      try {
+        const ref = doc(db, "DataTable", "worker");
+        const snap = await getDoc(ref);
+
+        if (!snap.exists()) {
+          console.warn("No users found in Firestore.");
+          return;
+        }
+
+        const raw = snap.data();
+        const users = (raw.data ?? []) as DataTable[];
+
+        const list = users.map((user) => ({
+          id: user.uuid,
+          name: user.name,
+        }));
+
+        setDirectory(list);
+      } catch (err) {
+        console.error("Failed to fetch directory:", err);
+      }
+    };
+    fetchClients();
+  }, []);
+
   const suggestions = term
-    ? CLIENTS.filter((c) =>
-        c.name.toLowerCase().includes(term.toLowerCase())
-      ).slice(0, 8)
+    ? directory
+        .filter((c) => c.name.toLowerCase().includes(term.toLowerCase()))
+        .slice(0, 8)
     : [];
 
-  const handleSelect = (id: string) => {
+  const handleSelect = (uuid: string) => {
     setTerm("");
     setDropdown(false);
-    router.push(`/profile/${id}`);
+    router.push(`/profile/${uuid}`);
   };
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
