@@ -94,7 +94,8 @@ export default function CaseManagement() {
       <main className="container mx-auto p-4 md:p-6 lg:p-8">
         {/* Staff placeholder */}
         <div className="mb-6">
-          <div className="h-8 w-48 rounded bg-gray-900" />
+          <div className="h-8 w-48 rounded bg-white-900" />
+          <text>Hi, Admin</text>
         </div>
 
         <div className="space-y-6">
