@@ -11,37 +11,18 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'UUID is required' }, { status: 400 })
   }
   try {
-    const docRef = doc(db, 'DataTable', 'worker')
+    const docRef = doc(db, 'DataTable', uuid)
     const docSnap = await getDoc(docRef)
 
     if (docSnap.exists()) {
       const documentData = docSnap.data()
-      const profilesArray = documentData.data as DataTableType[] | undefined
-
-      if (profilesArray) {
-        const foundProfile = profilesArray.find(
-          (item: DataTableType) => item.uuid === uuid
-        )
-
-        if (foundProfile) {
-          return NextResponse.json(foundProfile, { status: 200 })
-        } else {
-          return NextResponse.json(
-            {
-              error: `Profile with UUID ${uuid} not found in the profiles array`,
-            },
-            { status: 404 }
-          )
-        }
-      } else {
-        return NextResponse.json(
-          { error: "Profiles array field not found in document 'worker'" },
-          { status: 404 }
-        )
-      }
+      return NextResponse.json(
+        { uuid: docSnap.id, ...documentData } as DataTableType,
+        { status: 200 }
+      )
     } else {
       return NextResponse.json(
-        { error: "Document 'worker' not found!" },
+        { error: "Profiles array field not found in document 'worker'" },
         { status: 404 }
       )
     }
