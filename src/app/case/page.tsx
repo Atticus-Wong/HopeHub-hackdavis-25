@@ -96,6 +96,7 @@ export default function CaseManagement() {
         <div className="mb-6">
           <div className="h-8 w-48 rounded bg-white-900" />
           <text>Hi, Admin</text>
+          <div className="h-8 w-48 rounded bg-gray-900" />
         </div>
 
         <div className="space-y-6">
