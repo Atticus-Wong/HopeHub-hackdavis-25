@@ -16,7 +16,7 @@ import { Input } from "../ui/input";
 import { useProfileData } from "@/lib/atom";
 
 type DataTableProps = {
-  data: DataTableType[];
+  data: any[];
 };
 
 // Define a default input renderer for EditableCell
