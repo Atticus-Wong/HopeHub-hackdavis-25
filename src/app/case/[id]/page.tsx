@@ -51,12 +51,51 @@ const mockCases: Record<string, CaseData> = {
     actionItems: ["Follow up with clinic", "Send paperwork"],
     notes: "Awaiting confirmation from referred clinic.",
   },
+  "3": {
+    clientName: "Emily Smith",
+    caseTitle: "Job Readiness Coaching",
+    category: "Employment",
+    status: "Active",
+    startDate: "2025-04-10",
+    lastActivityDate: "2025-04-15",
+    actionItems: ["Schedule coaching session", "Prepare resume"],
+    notes: "Client is eager to start job search.",
+  },
+  "4": {
+    clientName: "Michael Lee",
+    caseTitle: "Nutrition Assistance Program",
+    category: "Food",
+    status: "Active",
+    startDate: "2025-04-12",
+    lastActivityDate: "2025-04-18",
+    actionItems: ["Distribute grocery vouchers", "Follow up enrollment"],
+    notes: "Client needs nutritional counseling.",
+  },
+  "5": {
+    clientName: "John Doe",
+    caseTitle: "Substance Recovery Support",
+    category: "Health",
+    status: "Active",
+    startDate: "2025-03-25",
+    lastActivityDate: "2025-04-17",
+    actionItems: ["Coordinate with counselor", "Arrange support group"],
+    notes: "Client reports steady progress.",
+  },
+  "6": {
+    clientName: "Ana Garcia",
+    caseTitle: "Transitional Housing Assistance",
+    category: "Housing",
+    status: "Pending",
+    startDate: "2025-04-19",
+    lastActivityDate: "2025-04-19",
+    actionItems: ["Verify housing availability", "Collect ID documents"],
+    notes: "Pending final approval from housing board.",
+  },
 };
 
 export default function CaseDetails({ params }: { params: { id: string } }) {
   const data = mockCases[params.id];
-
-  // hooks must be at top, even if data is undefined
+  // State hooks must be at the top
   const [items, setItems] = useState(
     () => data?.actionItems.map((text) => ({ text, done: false })) ?? []
   );
@@ -91,7 +130,7 @@ export default function CaseDetails({ params }: { params: { id: string } }) {
 
       {/* Header */}
       <section>
-        <h1 className="text-2xl font-bold">{data.clientName}</h1>
+        <h1 className="text-2xl font-bold text-green-800">{data.clientName}</h1>
         <p className="text-gray-700">{data.caseTitle}</p>
         <div className="mt-2 flex gap-2">
           <Badge className={categoryColors[data.category]}>
