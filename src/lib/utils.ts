@@ -99,8 +99,6 @@ export const generateFakeStuff = (amount: number) => {
     data.push(entry)
   }
   return { data }
-}
-
 export const generateDataTableUuids = (): DataTableType & { uuid: string } => {
   // Added uuid to return type
   const ageGroups = Object.values(AGEGROUP)

@@ -57,7 +57,6 @@ export default function Test() {
     const data = await response.json()
     console.log("Fetched queue data:", data)
   }
-
   const handleOne = async () => {
     try {
       const docRef = await addDoc(collection(db, 'DataTable'), generateDataTableUuids())
