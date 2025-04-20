@@ -2,8 +2,12 @@
 import { Button } from "@/components/ui/button"
 import { generateDataTableData, generateDataTableUuids, generateFakeStuff } from "@/lib/utils"
 import { SERVICES } from "@/types/enums"; // Import SERVICES enum if needed for transformation
+<<<<<<< Updated upstream
 import { DataTable as DataTableType, BaseQueue } from "@/types/types"; // Import BaseQueue type
 import { addDoc, collection, doc, setDoc, updateDoc, arrayUnion, getDoc } from "firebase/firestore"; // Ensure getDoc is imported if you need to read first, but arrayUnion handles appending directly
+=======
+import { addDoc, collection, doc, setDoc, updateDoc } from "firebase/firestore";
+>>>>>>> Stashed changes
 import { db } from "@/firebase/config";
 
 export default function Test() {
@@ -161,6 +165,11 @@ export default function Test() {
       console.error(`Error appending data to ${type} queue:`, error);
     }
   }
+
+  const handleAddService = async() => {
+    const response = await fetch('/api/updateProfile')
+    
+  
 
   return (
     <>
