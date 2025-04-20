@@ -25,7 +25,6 @@ export default function ProfileCard() {
     <Card className="w-[350px]"> {/* You might want to adjust width as needed */}
       <CardHeader>
         <CardTitle>{data?.name}</CardTitle>
-        <CardDescription>{data?.location}</CardDescription>
       </CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground">Age Group: {data?.ageGroup}</p>
