@@ -4,24 +4,22 @@ import { db } from "@/firebase/config";
 import { NextRequest, NextResponse } from "next/server";
 import { DataTable as DataTableType } from "@/types/types";
 
+// /api/fetchData/route.ts
 export async function GET() {
   try {
-    // Get a reference to the 'DataTable' collection
-    const collectionRef = collection(db, "DataTable");
-    // Fetch all documents in the collection
-    const querySnapshot = await getDocs(collectionRef);
+    const snap = await getDocs(collection(db, "DataTable"));
 
-    const allData: DataTableType[] = []; // Assuming DataTableType is the structure of your documents
-    querySnapshot.forEach((doc) => {
-      // doc.data() is never undefined for query doc snapshots
-      allData.push({ uuid: doc.id, ...doc.data() } as DataTableType); // Add document ID and data
-    });
+    const payload = snap.docs.map((doc) => ({
+      id: doc.id, // ← add this
+      // uuid: doc.id,     // optional: keep legacy key
+      ...doc.data(),
+    }));
 
-    return NextResponse.json(allData, { status: 200 });
-  } catch (error) {
-    console.error("Error fetching data:", error); // Corrected error message
+    return NextResponse.json(payload, { status: 200 });
+  } catch (err) {
+    console.error("Error fetching data:", err);
     return NextResponse.json(
-      { error: "Failed to fetch data" }, // Corrected error message
+      { error: "Failed to fetch data" },
       { status: 500 }
     );
   }
