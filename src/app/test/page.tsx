@@ -1,8 +1,8 @@
 'use client';
 import { Button } from "@/components/ui/button"
-import { generateDataTableData, generateFakeStuff } from "@/lib/utils"
+import { generateDataTableData, generateDataTableUuids, generateFakeStuff } from "@/lib/utils"
 import { SERVICES } from "@/types/enums"; // Import SERVICES enum if needed for transformation
-import { doc, setDoc } from "firebase/firestore";
+import { addDoc, collection, doc, setDoc } from "firebase/firestore";
 import { db } from "@/firebase/config";
 
 export default function Test() {
@@ -58,6 +58,14 @@ export default function Test() {
     console.log("Fetched queue data:", data)
   }
 
+  const handleOne = async () => {
+    try {
+      const docRef = await addDoc(collection(db, 'DataTable'), generateDataTableUuids())
+    } catch (error) {
+      console.error("Error fetching queue data:", error)
+    }
+  }
+
   return (
     <>
       <Button variant="default" onClick={handleWriteMockData}>mock firebase data</Button>
@@ -65,6 +73,7 @@ export default function Test() {
       <Button variant="default" onClick={handleFetchAllData}>test all data</Button>
       <Button variant="default" onClick={handleWriteMockQueueData}>generate fake shower</Button>
       <Button variant="default" onClick={handleFetchQueue}>fetch queue data</Button>
+      <Button variant="default" onClick={handleOne}>test</Button>
     </>
   )
 }

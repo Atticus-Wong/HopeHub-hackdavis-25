@@ -14,9 +14,10 @@ export default async function PUT(req: NextRequest) {
 
   const { searchParams } = new URL(req.url)
   const uuid = searchParams.get('uuid')
+  const profileInfo = req.json()
 
   try {
-    const docRef = doc(db, 'DataTable', 'worker')
+    const docRef = doc(db, 'DataTable', profileInfo.uuid)
     const docSnap = await getDoc(docRef)
 
     if (docSnap.exists()) {
