@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react"; // Import useCallback
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Input } from "@/components/ui/input";
@@ -19,7 +19,7 @@ import { ServiceLog, BaseQueue } from "@/types/types";
 import Queue from "@/components/Queue";
 import ServiceLogs from "@/components/Cards/ServiceLogs";
 import Announcements from "@/components/Announcments";
-import AddClientForm from "@/components/AddClientForm"; // Import the form component
+import AddClientForm from "@/components/AddClientForm";
 
 /* ─── Animation helpers ─── */
 const fadeUp = {
@@ -37,39 +37,45 @@ export default function Dashboard() {
   const [logs, setLogs] = useState<ServiceLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isAddClientDialogOpen, setIsAddClientDialogOpen] = useState(false); // State for the dialog
+  const [isAddClientDialogOpen, setIsAddClientDialogOpen] = useState(false);
+
+  // Wrap data fetching logic in a useCallback to keep its reference stable
+  const fetchDashboardData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    console.log("Fetching dashboard data...");
+
+    try {
+      const [clientListData, logsData] = await Promise.all([
+        handleFetchData().catch(err => { console.error("Error fetching directory:", err); return undefined; }),
+        fetch('/api/fetchServiceLogs').then(res => res.ok ? res.json() : Promise.reject(res)).catch(err => { console.error("Error fetching logs:", err); return { logs: [] }; }),
+      ]);
+
+      if (clientListData) {
+        console.log("Directory data fetched:", clientListData);
+        setDirectory(clientListData);
+      } else {
+        console.log("Directory data fetch returned undefined.");
+        setDirectory([]);
+      }
+
+      console.log("Logs data fetched:", logsData);
+      setLogs(logsData?.logs || []);
+
+    } catch (err) {
+      console.error("Error during data fetch:", err);
+      setError("Failed to load dashboard data.");
+      setDirectory([]);
+      setLogs([]);
+    } finally {
+      setIsLoading(false);
+      console.log("Finished fetching dashboard data.");
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const [clientListData, logsData] = await Promise.all([
-          handleFetchData().catch(err => { console.error("Error fetching directory:", err); return undefined; }),
-          fetch('/api/fetchServiceLogs').then(res => res.ok ? res.json() : Promise.reject(res)).catch(err => { console.error("Error fetching logs:", err); return { logs: [] }; }),
-        ]);
-
-        if (clientListData) {
-          setDirectory(clientListData);
-        } else {
-          setDirectory([]);
-        }
-
-        setLogs(logsData?.logs || []);
-
-      } catch (err) {
-        console.error("Error during initial data fetch:", err);
-        setError("Failed to load dashboard data.");
-        setDirectory([]);
-        setLogs([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   const suggestions = term
     ? directory
@@ -83,9 +89,8 @@ export default function Dashboard() {
     router.push(`/profile/${uuid}`);
   };
 
-  // Update handleAddNewClient to open the dialog
   const handleAddNewClient = () => {
-    setIsAddClientDialogOpen(true); // Set state to true to open the dialog
+    setIsAddClientDialogOpen(true);
   };
 
   const LoadingSkeleton = () => (
@@ -156,7 +161,7 @@ export default function Dashboard() {
               </AnimatePresence>
             </motion.div>
 
-            {/* Add New Client Button - onClick now triggers the state change */}
+            {/* Add New Client Button */}
             <Button onClick={handleAddNewClient} className="h-11 whitespace-nowrap">
               + Add new Client
             </Button>
@@ -190,9 +195,12 @@ export default function Dashboard() {
         </main>
       </Card>
 
-      {/* Render the AddClientForm, passing the state and handler */}
-      <AddClientForm open={isAddClientDialogOpen} onOpenChange={setIsAddClientDialogOpen} />
-
+      {/* Render AddClientForm, passing the onSuccess callback */}
+      <AddClientForm
+        open={isAddClientDialogOpen}
+        onOpenChange={setIsAddClientDialogOpen}
+        onSuccess={fetchDashboardData}
+      />
     </motion.div>
   );
 }
