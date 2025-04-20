@@ -4,14 +4,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/firebase/config";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Menu } from "lucide-react";
-import { DataTable } from "@/types/client";
 
 // /* ─── Mock client directory (id + name) ─── */
 // const CLIENTS = [
@@ -83,7 +80,7 @@ export default function Dashboard() {
         console.log("Fetched all data:", data);
 
         const list = data.map((user: any) => ({
-          id: user.uuid,
+          id: user.id,
           name: user.name,
         }));
 
