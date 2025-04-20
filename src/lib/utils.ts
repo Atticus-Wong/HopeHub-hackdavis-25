@@ -43,6 +43,7 @@ export function generateDataTableData(amount: number) {
     }
 
     const entry: DataTableType = {
+      uuid: uuidv4(), // Generate UUID
       name: `Person ${i + 1}`,
       ethnicity: ethnicities[Math.floor(Math.random() * ethnicities.length)],
       gender: genders[Math.floor(Math.random() * genders.length)],
@@ -99,6 +100,7 @@ export const generateFakeStuff = (amount: number) => {
     data.push(entry)
   }
   return { data }
+}
 export const generateDataTableUuids = (): DataTableType & { uuid: string } => {
   // Added uuid to return type
   const ageGroups = Object.values(AGEGROUP)

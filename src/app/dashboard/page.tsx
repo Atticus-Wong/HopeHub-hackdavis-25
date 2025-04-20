@@ -51,7 +51,7 @@ const MOCK_QUEUES = {
   ],
   Meals: [
     { name: "David", wait: "24 min" },
-    { name: "Arjun", wait: "15 min" },
+    { name: "Arjun", wait: "15 min" },
     { name: "Maya", wait: "47 min" },
   ],
 };
@@ -73,18 +73,15 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchClients = async () => {
       try {
-        const ref = doc(db, "DataTable", "worker");
-        const snap = await getDoc(ref);
-
-        if (!snap.exists()) {
-          console.warn("No users found in Firestore.");
-          return;
+        const response = await fetch('/api/fetchData')
+        if (!response.ok) {
+          console.error("Error fetching all data:", response.statusText)
+          return
         }
+        const data = await response.json()
+        console.log("Fetched all data:", data)
 
-        const raw = snap.data();
-        const users = (raw.data ?? []) as DataTable[];
-
-        const list = users.map((user) => ({
+        const list = data.map((user: any) => ({
           id: user.uuid,
           name: user.name,
         }));
@@ -99,8 +96,8 @@ export default function Dashboard() {
 
   const suggestions = term
     ? directory
-        .filter((c) => c.name.toLowerCase().includes(term.toLowerCase()))
-        .slice(0, 8)
+      .filter((c) => c.name.toLowerCase().includes(term.toLowerCase()))
+      .slice(0, 8)
     : [];
 
   const handleSelect = (uuid: string) => {
