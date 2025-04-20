@@ -18,10 +18,10 @@ export default function DashboardLayout({ // Renamed for clarity
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning> {/* Added suppressHydrationWarning for ThemeProvider */}
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="light">
-          <SidebarProvider> {/* Wrap with SidebarProvider */}
+          <SidebarProvider>
             <div className="ml-4 flex min-h-screen">
               <AccountSidebar />
               <main className="flex-1 bg-gray-50 dark:bg-gray-900"> {/* Ensure main content takes remaining space */}
