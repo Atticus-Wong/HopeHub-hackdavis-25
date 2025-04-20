@@ -1,7 +1,10 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-
-/* ──────────────────  Types  ────────────────── */
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 
 const categoryColors = {
   Housing: "bg-blue-100 text-blue-800",
@@ -16,21 +19,16 @@ const statusColors = {
   Closed: "bg-gray-100 text-gray-800",
 } as const;
 
-type Category = keyof typeof categoryColors;
-type Status = keyof typeof statusColors;
-
 interface CaseData {
   clientName: string;
   caseTitle: string;
-  category: Category;
-  status: Status;
+  category: keyof typeof categoryColors;
+  status: keyof typeof statusColors;
   startDate: string;
   lastActivityDate: string;
   actionItems: string[];
   notes: string;
 }
-
-/* ──────────────────  Mock Data  ────────────────── */
 
 const mockCases: Record<string, CaseData> = {
   "1": {
@@ -55,75 +53,125 @@ const mockCases: Record<string, CaseData> = {
   },
 };
 
-/* ──────────────────  Page Component  ────────────────── */
-
 export default function CaseDetails({ params }: { params: { id: string } }) {
-  const caseData = mockCases[params.id];
+  const data = mockCases[params.id];
 
-  if (!caseData) {
+  // hooks must be at top, even if data is undefined
+  const [items, setItems] = useState(
+    () => data?.actionItems.map((text) => ({ text, done: false })) ?? []
+  );
+  const [notes, setNotes] = useState(() => data?.notes ?? "");
+  const [editingNotes, setEditingNotes] = useState(false);
+
+  if (!data) {
     return <p className="p-6">Case not found</p>;
   }
 
+  const toggleDone = (idx: number) =>
+    setItems((prev) =>
+      prev.map((it, i) => (i === idx ? { ...it, done: !it.done } : it))
+    );
+
+  const deleteItem = (idx: number) =>
+    setItems((prev) => prev.filter((_, i) => i !== idx));
+
+  const addItem = () => {
+    const text = prompt("New action item:");
+    if (text?.trim()) {
+      setItems((prev) => [...prev, { text: text.trim(), done: false }]);
+    }
+  };
+
   return (
-    <main className="container mx-auto max-w-xl space-y-6 p-6">
-      {/* Back link */}
-      <Link href="/case" className="text-sm text-blue-600 hover:underline">
+    <main className="container mx-auto max-w-xl space-y-6 p-6 bg-green-50 rounded-lg">
+      {/* Back */}
+      <Link href="/case" className="text-blue-600 hover:underline">
         ← Back to My Cases
       </Link>
 
       {/* Header */}
       <section>
-        <h1 className="text-2xl font-semibold">{caseData.clientName}</h1>
-        <p className="mb-2 text-gray-700">{caseData.caseTitle}</p>
-        <div className="mb-4 flex gap-2">
-          <Badge className={categoryColors[caseData.category]}>
-            {caseData.category}
+        <h1 className="text-2xl font-bold">{data.clientName}</h1>
+        <p className="text-gray-700">{data.caseTitle}</p>
+        <div className="mt-2 flex gap-2">
+          <Badge className={categoryColors[data.category]}>
+            {data.category}
           </Badge>
-          <Badge className={statusColors[caseData.status]}>
-            {caseData.status}
-          </Badge>
+          <Badge className={statusColors[data.status]}>{data.status}</Badge>
         </div>
       </section>
 
       {/* Dates */}
-      <section className="space-y-2">
+      <section className="space-y-1 text-gray-800">
         <p>
-          <span className="font-semibold">Date Started:</span>{" "}
-          {caseData.startDate}
+          <span className="font-semibold">Date Started:</span> {data.startDate}
         </p>
         <p>
           <span className="font-semibold">Most Recent Activity Date:</span>{" "}
-          {caseData.lastActivityDate}
+          {data.lastActivityDate}
         </p>
       </section>
 
       {/* Action Items */}
-      <section>
-        <p className="mb-2 font-semibold">Action Items:</p>
+      <section className="space-y-2">
+        <div className="flex items-center justify-between">
+          <p className="font-semibold">Action Items:</p>
+          <Button size="sm" onClick={addItem}>
+            Add
+          </Button>
+        </div>
         <ul className="space-y-2">
-          {caseData.actionItems.map((item, idx) => (
+          {items.map((it, idx) => (
             <li
               key={idx}
-              className="rounded bg-gray-200 px-4 py-2 text-sm text-gray-800"
+              className="flex items-center justify-between rounded bg-white px-4 py-2 shadow-sm"
             >
-              {item}
+              <span
+                onClick={() => toggleDone(idx)}
+                className={`flex-1 cursor-pointer ${
+                  it.done ? "line-through text-gray-400" : ""
+                }`}
+              >
+                {it.text}
+              </span>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => deleteItem(idx)}
+              >
+                <X className="h-4 w-4 text-gray-500" />
+              </Button>
             </li>
           ))}
         </ul>
       </section>
 
       {/* Notes */}
-      <section>
-        <p className="mb-1 font-semibold">Notes:</p>
-        <div className="rounded bg-gray-200 p-4 text-sm text-gray-700">
-          {caseData.notes}
+      <section className="space-y-2">
+        <div className="flex items-center justify-between">
+          <p className="font-semibold">Notes:</p>
+          <Button size="sm" onClick={() => setEditingNotes((e) => !e)}>
+            {editingNotes ? "Save" : "Edit"}
+          </Button>
         </div>
+        {editingNotes ? (
+          <textarea
+            className="w-full rounded bg-white p-3 shadow-inner"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            rows={4}
+          />
+        ) : (
+          <div className="rounded bg-white p-4 shadow-sm text-gray-700">
+            {notes}
+          </div>
+        )}
       </section>
 
-      {/* Documents placeholder */}
+      {/* Documents */}
       <section>
         <p className="font-semibold">Documents:</p>
-        <p className="text-sm text-gray-500">No documents attached yet.</p>
+        <p className="text-gray-500">No documents attached yet.</p>
       </section>
     </main>
   );
