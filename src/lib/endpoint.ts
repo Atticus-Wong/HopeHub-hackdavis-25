@@ -1,20 +1,32 @@
+<<<<<<< HEAD
 import { db } from "@/firebase/config";
+=======
+import { db } from '@/firebase/config'
+>>>>>>> ca45bdf (done: DataTable and Queue endpoints)
 import {
   doc,
   updateDoc,
   arrayUnion,
   getDoc,
   arrayRemove,
+<<<<<<< HEAD
 } from "firebase/firestore";
 import { BaseQueue } from "@/types/types";
 import { SERVICES } from "@/types/enums";
 import { DataTable as DataTableType } from "@/types/types";
+=======
+} from 'firebase/firestore'
+import { BaseQueue } from '@/types/types'
+import { SERVICES } from '@/types/enums'
+import { DataTable as DataTableType } from '@/types/types'
+>>>>>>> ca45bdf (done: DataTable and Queue endpoints)
 
 // ---------- PUT ENDPOINTS ---------- //
 export const handleAppendToQueue = async (
   type: string,
   dataToAppend: BaseQueue
 ) => {
+<<<<<<< HEAD
   const docRef = doc(db, "BaseQueue", type);
   try {
     await updateDoc(docRef, {
@@ -25,6 +37,18 @@ export const handleAppendToQueue = async (
     console.error(`Error appending data to ${type} queue:`, error);
   }
 };
+=======
+  const docRef = doc(db, 'BaseQueue', type)
+  try {
+    await updateDoc(docRef, {
+      queue: arrayUnion(dataToAppend),
+    })
+    console.log(`Successfully appended data to ${type} queue.`)
+  } catch (error) {
+    console.error(`Error appending data to ${type} queue:`, error)
+  }
+}
+>>>>>>> ca45bdf (done: DataTable and Queue endpoints)
 
 export const handleAppendService = async (
   uuid: string,
@@ -32,6 +56,7 @@ export const handleAppendService = async (
 ) => {
   try {
     // 1. Fetch the current profile data
+<<<<<<< HEAD
     const fetchResponse = await fetch(`/api/fetchProfile?uuid=${uuid}`);
 
     if (!fetchResponse.ok) {
@@ -77,16 +102,63 @@ export const handleAppendService = async (
       const currentValue = benefitsMap.get(service) || 0;
       benefitsMap.set(service, currentValue + 1);
     });
+=======
+    const fetchResponse = await fetch(`/api/fetchProfile?uuid=${uuid}`)
+
+    if (!fetchResponse.ok) {
+      let errorPayload: any = {
+        message: `HTTP error! status: ${fetchResponse.status}`,
+      }
+      let errorText = ''
+      try {
+        errorText = await fetchResponse.text()
+        if (errorText) {
+          errorPayload = JSON.parse(errorText) // Attempt to parse as JSON
+        }
+      } catch (parseError) {
+        console.error(
+          'Failed to parse fetch profile error response:',
+          parseError
+        )
+        errorPayload.message =
+          errorText || fetchResponse.statusText || errorPayload.message
+      }
+      console.error(
+        'Error fetching profile:',
+        fetchResponse.statusText,
+        errorPayload
+      )
+      return
+    }
+    const initialData: DataTableType = await fetchResponse.json() // Assuming fetchProfile returns DataTableType
+    const currentBenefits = initialData.benefits || [] // Ensure benefits array exists
+
+    const benefitsMap = new Map<SERVICES, number>()
+    currentBenefits.forEach((benefit) => {
+      benefitsMap.set(benefit.name, benefit.value)
+    })
+
+    // 3. Update counts for the provided services
+    servicesToUpdate.forEach((service) => {
+      const currentValue = benefitsMap.get(service) || 0
+      benefitsMap.set(service, currentValue + 1)
+    })
+>>>>>>> ca45bdf (done: DataTable and Queue endpoints)
 
     // 4. Convert the map back to the array format required by Firestore
     const updatedBenefits = Array.from(benefitsMap.entries()).map(
       ([name, value]) => ({ name, value })
+<<<<<<< HEAD
     );
+=======
+    )
+>>>>>>> ca45bdf (done: DataTable and Queue endpoints)
 
     // 5. Prepare the data payload for the PUT request
     const updateData = {
       benefits: updatedBenefits,
       updatedAt: new Date().toISOString(), // Also update the updatedAt timestamp
+<<<<<<< HEAD
     };
 
     // 6. Send the PUT request to update the profile
@@ -212,10 +284,106 @@ export const handleFetchQueueShower = async () => {
   console.log("Fetched queue shower data:", data.data);
   return data;
 };
+=======
+    }
+
+    // 6. Send the PUT request to update the profile
+    const updateResponse = await fetch(`/api/updateProfile?uuid=${uuid}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updateData),
+    })
+
+    // --- Improved Response Handling ---
+    if (!updateResponse.ok) {
+      let errorPayload: any = {
+        message: `HTTP error! status: ${updateResponse.status}`,
+      }
+      let errorText = ''
+      try {
+        errorText = await updateResponse.text()
+        if (errorText) {
+          errorPayload = JSON.parse(errorText) // Attempt to parse as JSON
+        }
+      } catch (parseError) {
+        console.error(
+          'Failed to parse update profile error response:',
+          parseError
+        )
+        errorPayload.message =
+          errorText || updateResponse.statusText || errorPayload.message
+      }
+      console.error(
+        'Error updating profile:',
+        updateResponse.statusText,
+        errorPayload
+      )
+      return
+    }
+
+    // Handle successful response (status 2xx)
+    let responseText = '' // Define outside try block
+    try {
+      responseText = await updateResponse.text() // Read response body as text first
+      if (responseText) {
+        const result = JSON.parse(responseText) // Attempt to parse as JSON
+        console.log('Profile update successful:', result)
+      } else {
+        // Handle empty successful response (e.g., 204 No Content, or unexpected empty 200)
+        console.log(
+          'Profile update successful (empty response body). Status:',
+          updateResponse.status
+        )
+      }
+    } catch (parseError) {
+      console.error('Failed to parse successful response as JSON:', parseError)
+      // Log the raw text to see what was actually received
+      console.error('Raw response text that failed parsing:', responseText)
+    }
+    // --- End of Improved Response Handling ---
+  } catch (error) {
+    console.error('Error in handleTwo function:', error)
+  }
+}
+
+// ---------- GET ENDPOINTS ---------- //
+export const handleFetchData = async (uuid: string) => {
+  const response = await fetch(`/api/fetchProfile?uuid=${uuid}`)
+  if (!response.ok) {
+    console.error('Error fetching profile:', response.statusText)
+    return
+  }
+  const data = await response.json()
+  console.log('Fetched profile data:', data)
+}
+
+export const handleFetchQueueMeals = async () => {
+  const response = await fetch('/api/fetchBaseQueue/meals')
+  if (!response.ok) {
+    console.error('Error fetching queue data:', response.statusText)
+    return
+  }
+  const data = await response.json()
+  console.log('Fetched queue data:', data)
+}
+
+export const handleFetchQueueShower = async () => {
+  const response = await fetch('/api/fetchBaseQueue/meals')
+  if (!response.ok) {
+    console.error('Error fetching queue data:', response.statusText)
+    return
+  }
+  const data = await response.json()
+  console.log('Fetched queue data:', data)
+}
+>>>>>>> ca45bdf (done: DataTable and Queue endpoints)
 
 // ---------- DELETE ENDPOINTS ---------- //
 // Add parameter for the item to remove, or modify logic to always remove the first
 export const handleDeleteFromQueue = async (type: string) => {
+<<<<<<< HEAD
   const docRef = doc(db, "BaseQueue", type);
   try {
     // Get the current document data
@@ -223,6 +391,15 @@ export const handleDeleteFromQueue = async (type: string) => {
 
     if (docSnap.exists()) {
       const data = docSnap.data();
+=======
+  const docRef = doc(db, 'BaseQueue', type)
+  try {
+    // Get the current document data
+    const docSnap = await getDoc(docRef)
+
+    if (docSnap.exists()) {
+      const data = docSnap.data()
+>>>>>>> ca45bdf (done: DataTable and Queue endpoints)
       // Check if the queue exists and is not empty
       if (
         data &&
@@ -231,11 +408,16 @@ export const handleDeleteFromQueue = async (type: string) => {
         data.queue.length > 0
       ) {
         // Get the first element from the queue array
+<<<<<<< HEAD
         const firstElement = data.queue[0];
+=======
+        const firstElement = data.queue[0]
+>>>>>>> ca45bdf (done: DataTable and Queue endpoints)
 
         // Update the document by removing the first element from the queue array
         await updateDoc(docRef, {
           queue: arrayRemove(firstElement), // Use arrayRemove to delete the specific element
+<<<<<<< HEAD
         });
         console.log(`Successfully deleted the first item from ${type} queue.`);
       } else {
@@ -250,3 +432,19 @@ export const handleDeleteFromQueue = async (type: string) => {
     console.error(`Error deleting data from ${type} queue:`, error);
   }
 };
+=======
+        })
+        console.log(`Successfully deleted the first item from ${type} queue.`)
+      } else {
+        console.log(
+          `Queue for ${type} is empty or does not exist. Nothing to delete.`
+        )
+      }
+    } else {
+      console.error(`Document for ${type} queue does not exist.`)
+    }
+  } catch (error) {
+    console.error(`Error deleting data from ${type} queue:`, error)
+  }
+}
+>>>>>>> ca45bdf (done: DataTable and Queue endpoints)

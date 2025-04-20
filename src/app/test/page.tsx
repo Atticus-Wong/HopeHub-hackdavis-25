@@ -7,16 +7,9 @@ import {
 } from "@/lib/utils";
 import { SERVICES } from "@/types/enums"; // Import SERVICES enum if needed for transformation
 import { DataTable as DataTableType, BaseQueue } from "@/types/types"; // Import BaseQueue type
-import {
-  addDoc,
-  collection,
-  doc,
-  setDoc,
-  updateDoc,
-  arrayUnion,
-  getDoc,
-} from "firebase/firestore"; // Ensure getDoc is imported if you need to read first, but arrayUnion handles appending directly
+import { addDoc, collection, doc, setDoc, updateDoc, arrayUnion, getDoc } from "firebase/firestore"; // Ensure getDoc is imported if you need to read first, but arrayUnion handles appending directly
 import { db } from "@/firebase/config";
+import { handleDeleteFromQueue, handleAppendToQueue } from "@/lib/endpoint";
 
 export default function Test() {
   const testFetchProfile = async () => {
@@ -30,8 +23,8 @@ export default function Test() {
   };
 
   const handleWriteMockQueueData = async () => {
-    const docRef = doc(db, "BaseQueue", "Meals");
-    const data = generateFakeStuff(10);
+    const docRef = doc(db, "BaseQueue", 'Meals')
+    const data = generateFakeStuff(3)
     try {
       await setDoc(docRef, data);
     } catch (error) {
@@ -76,34 +69,114 @@ export default function Test() {
         generateDataTableUuids()
       );
     } catch (error) {
-      console.error("Error fetching queue data:", error);
+      console.error("Error adding document: ", error);
     }
-  };
+  }
 
-  const handleAddService = async () => {
-    const response = await fetch("/api/updateProfile?uuid=");
+  const handleTwo = async (uuid: string, servicesToUpdate: SERVICES[]) => {
+    try {
+      const fetchResponse = await fetch(`/api/fetchProfile?uuid=${uuid}`);
 
-    return (
-      <>
-        <Button variant="default" onClick={handleWriteMockData}>
-          mock firebase data
-        </Button>
-        <Button variant="default" onClick={testFetchProfile}>
-          test fetchProfile
-        </Button>
-        <Button variant="default" onClick={handleFetchAllData}>
-          test all data
-        </Button>
-        <Button variant="default" onClick={handleWriteMockQueueData}>
-          generate fake shower
-        </Button>
-        <Button variant="default" onClick={handleFetchQueue}>
-          fetch queue data
-        </Button>
-        <Button variant="default" onClick={handleOne}>
-          test
-        </Button>
-      </>
-    );
-  };
+      if (!fetchResponse.ok) {
+        let errorPayload: any = { message: `HTTP error! status: ${fetchResponse.status}` };
+        let errorText = '';
+        try {
+          errorText = await fetchResponse.text();
+          if (errorText) {
+            errorPayload = JSON.parse(errorText);
+          }
+        } catch (parseError) {
+          console.error("Failed to parse fetch profile error response:", parseError);
+          errorPayload.message = errorText || fetchResponse.statusText || errorPayload.message;
+        }
+        console.error("Error fetching profile:", fetchResponse.statusText, errorPayload);
+        return;
+      }
+      const initialData: DataTableType = await fetchResponse.json();
+      const currentBenefits = initialData.benefits || [];
+
+      const benefitsMap = new Map<SERVICES, number>();
+      currentBenefits.forEach(benefit => {
+        benefitsMap.set(benefit.name, benefit.value);
+      });
+
+      servicesToUpdate.forEach(service => {
+        const currentValue = benefitsMap.get(service) || 0;
+        benefitsMap.set(service, currentValue + 1);
+      });
+
+      const updatedBenefits = Array.from(benefitsMap.entries()).map(([name, value]) => ({ name, value }));
+
+      const updateData = {
+        benefits: updatedBenefits,
+        updatedAt: new Date().toISOString(),
+      };
+
+      const updateResponse = await fetch(`/api/updateProfile?uuid=${uuid}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData),
+      });
+
+      if (!updateResponse.ok) {
+        let errorPayload: any = { message: `HTTP error! status: ${updateResponse.status}` };
+        let errorText = '';
+        try {
+          errorText = await updateResponse.text();
+          if (errorText) {
+            errorPayload = JSON.parse(errorText);
+          }
+        } catch (parseError) {
+          console.error("Failed to parse update profile error response:", parseError);
+          errorPayload.message = errorText || updateResponse.statusText || errorPayload.message;
+        }
+        console.error("Error updating profile:", updateResponse.statusText, errorPayload);
+        return;
+      }
+
+      let responseText = '';
+      try {
+        responseText = await updateResponse.text();
+        if (responseText) {
+          const result = JSON.parse(responseText);
+          console.log("Profile update successful:", result);
+        } else {
+          console.log("Profile update successful (empty response body). Status:", updateResponse.status);
+        }
+      } catch (parseError) {
+        console.error("Failed to parse successful response as JSON:", parseError);
+        console.error("Raw response text that failed parsing:", responseText);
+      }
+
+    } catch (error) {
+      console.error("Error in handleTwo function:", error);
+    }
+  }
+
+  const handleThree = async (type: string, dataToAppend: BaseQueue) => {
+    const docRef = doc(db, 'BaseQueue', type);
+    try {
+      await updateDoc(docRef, {
+        queue: arrayUnion(dataToAppend)
+      });
+      console.log(`Successfully appended data to ${type} queue.`);
+    } catch (error) {
+      console.error(`Error appending data to ${type} queue:`, error);
+    }
+  }
+
+  return (
+    <>
+      <Button variant="default" onClick={handleWriteMockData}>mock firebase data</Button>
+      <Button variant="default" onClick={testFetchProfile}>test fetchProfile</Button>
+      <Button variant="default" onClick={handleFetchAllData}>test all data</Button>
+      <Button variant="default" onClick={handleWriteMockQueueData}>generate fake shower</Button>
+      <Button variant="default" onClick={handleFetchQueue}>fetch queue data</Button>
+      <Button variant="default" onClick={handleOne}>Add Single Profile</Button>
+      <Button variant="default" onClick={() => handleTwo('4IuMehgXBydTa3FWuEaW', [SERVICES.SHOWER])}>Update Profile (Shower)</Button>
+      <Button variant="default" onClick={() => handleThree('Meals', { type: SERVICES.MEALS, name: 'Jane Doe', uuid: 'some-new-uuid', createdAt: new Date().toISOString() })}>Append to Meals Queue</Button>
+    </>
+  )
 }
