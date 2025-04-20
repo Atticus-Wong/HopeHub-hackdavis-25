@@ -9,7 +9,7 @@ import { SERVICES } from "@/types/enums"; // Import SERVICES enum if needed for 
 import { DataTable as DataTableType, BaseQueue } from "@/types/types"; // Import BaseQueue type
 import { addDoc, collection, doc, setDoc, updateDoc, arrayUnion, getDoc } from "firebase/firestore"; // Ensure getDoc is imported if you need to read first, but arrayUnion handles appending directly
 import { db } from "@/firebase/config";
-import { handleDeleteFromQueue, handleAppendToQueue } from "@/lib/endpoint";
+import { handleDeleteFromQueue, handleAppendToQueue, handleAddProfile } from "@/lib/endpoint";
 
 export default function Test() {
   const testFetchProfile = async () => {
@@ -167,6 +167,8 @@ export default function Test() {
     }
   }
 
+
+
   return (
     <>
       <Button variant="default" onClick={handleWriteMockData}>mock firebase data</Button>
@@ -176,7 +178,8 @@ export default function Test() {
       <Button variant="default" onClick={handleFetchQueue}>fetch queue data</Button>
       <Button variant="default" onClick={handleOne}>Add Single Profile</Button>
       <Button variant="default" onClick={() => handleTwo('4IuMehgXBydTa3FWuEaW', [SERVICES.SHOWER])}>Update Profile (Shower)</Button>
-      <Button variant="default" onClick={() => handleThree('Meals', { type: SERVICES.MEALS, name: 'Jane Doe', uuid: 'some-new-uuid', createdAt: new Date().toISOString() })}>Append to Meals Queue</Button>
+      <Button variant="default" onClick={() => handleAppendToQueue('Shower', { type: SERVICES.SHOWER, name: 'Test User', uuid: 'test-uuid-123', createdAt: new Date().toISOString() })}>Append to Shower Queue</Button>
+      <Button variant="default" onClick={() => handleDeleteFromQueue('Shower')}>Delete Shower Queue</Button>
     </>
   )
 }

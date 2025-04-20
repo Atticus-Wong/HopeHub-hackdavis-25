@@ -50,6 +50,53 @@ export const handleAppendToQueue = async (
 }
 >>>>>>> ca45bdf (done: DataTable and Queue endpoints)
 
+export const handleAddProfile = async (
+  name: string,
+  ethnicity: string,
+  gender: string,
+  ageGroup: string,
+  benefits: { name: SERVICES; value: number }[]
+) => {
+  try {
+    const response = await fetch(`/api/addProfile`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: name,
+        ethnicity: ethnicity,
+        gender: gender,
+        ageGroup: ageGroup,
+        benefits: benefits,
+      }),
+    })
+
+    if (!response.ok) {
+      // Handle HTTP errors
+      const errorText = await response.text()
+      console.error(
+        `Error adding profile: ${response.status} ${response.statusText}`,
+        errorText
+      )
+      // Optionally, throw an error or return an error indicator
+      return { success: false, error: `HTTP error ${response.status}` }
+    }
+
+    // Handle successful response
+    const result = await response.json()
+    console.log('Profile added successfully:', result)
+    return { success: true, data: result }
+  } catch (error) {
+    // Handle network errors or other exceptions
+    console.error('Failed to add profile:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }
+  }
+}
+
 export const handleAppendService = async (
   uuid: string,
   servicesToUpdate: SERVICES[]
@@ -349,7 +396,33 @@ export const handleFetchQueueShower = async () => {
 }
 
 // ---------- GET ENDPOINTS ---------- //
-export const handleFetchData = async (uuid: string) => {
+// Modified handleFetchData to fetch all client data for the directory
+export const handleFetchData = async (): Promise<
+  { id: string; name: string }[] | undefined
+> => {
+  try {
+    const response = await fetch(`/api/fetchData`) // Fetch all data
+    if (!response.ok) {
+      console.error('Error fetching all data:', response.statusText)
+      return undefined // Return undefined on error
+    }
+    const data: DataTableType[] = await response.json() // Expect an array of DataTableType
+    console.log('Fetched all data:', data)
+
+    // Map data to the format needed for the directory
+    const list = data.map((user) => ({
+      id: user.uuid,
+      name: user.name,
+    }))
+    return list // Return the processed list
+  } catch (err) {
+    console.error('Failed to fetch or process directory data:', err)
+    return undefined // Return undefined on error
+  }
+}
+
+export const handleFetchProfileData = async (uuid: string) => {
+  // Renamed original handleFetchData
   const response = await fetch(`/api/fetchProfile?uuid=${uuid}`)
   if (!response.ok) {
     console.error('Error fetching profile:', response.statusText)
@@ -366,17 +439,19 @@ export const handleFetchQueueMeals = async () => {
     return
   }
   const data = await response.json()
-  console.log('Fetched queue data:', data)
+  console.log('Fetched shower data:', data.data)
+  return data
 }
 
 export const handleFetchQueueShower = async () => {
   const response = await fetch('/api/fetchBaseQueue/meals')
   if (!response.ok) {
     console.error('Error fetching queue data:', response.statusText)
-    return
+    return {}
   }
   const data = await response.json()
-  console.log('Fetched queue data:', data)
+  console.log('Fetched queue shower data:', data.data)
+  return data
 }
 >>>>>>> ca45bdf (done: DataTable and Queue endpoints)
 
