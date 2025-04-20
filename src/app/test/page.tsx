@@ -168,9 +168,6 @@ export default function Test() {
     }
   }
 
-
-
-
   return (
     <>
       <Button variant="default" onClick={handleWriteMockData}>mock firebase data</Button>
@@ -182,6 +179,7 @@ export default function Test() {
       <Button variant="default" onClick={() => handleTwo('4IuMehgXBydTa3FWuEaW', [SERVICES.SHOWER])}>Update Profile (Shower)</Button>
       <Button variant="default" onClick={() => handleAppendToQueue('Shower', { type: SERVICES.SHOWER, name: 'Test User', uuid: 'test-uuid-123', createdAt: new Date().toISOString() })}>Append to Shower Queue</Button>
       <Button variant="default" onClick={() => handleDeleteFromQueue('Shower')}>Delete Shower Queue</Button>
+      <Button variant="default" onClick={() => handleAddProfile('Atticus Wong', 'Chinese', 'Male', 'ADULT', [])}>Add Atticus Profile</Button>
     </>
   )
 }
