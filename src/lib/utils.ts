@@ -8,7 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // Function to generate random data for DataTableType
-export function generateDataTableData(amount: number): DataTableType[] {
+export function generateDataTableData(amount: number) {
   const data: DataTableType[] = []
   const ageGroups = Object.values(AGEGROUP)
   const serviceTypes: SERVICES[] = [
@@ -49,7 +49,6 @@ export function generateDataTableData(amount: number): DataTableType[] {
       gender: genders[Math.floor(Math.random() * genders.length)],
       ageGroup: ageGroups[Math.floor(Math.random() * ageGroups.length)],
       benefits: benefits,
-      location: `City ${String.fromCharCode(65 + (i % 26))}`, // Cycle through A-Z
       createAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       // Optionally add stayDuration
@@ -60,9 +59,7 @@ export function generateDataTableData(amount: number): DataTableType[] {
     }
     data.push(entry)
   }
-  return data
+  return { data }
 }
 
-const generateRandomService = (amount: number) => {
-
-}
+const generateRandomService = (amount: number) => {}

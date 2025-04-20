@@ -7,7 +7,7 @@ import { useIsExpanded } from "@/lib/atom";
 import { cn, generateDataTableData } from "@/lib/utils"; // Import cn utility
 
 // Sample data - replace with your actual data fetching logic
-const defaultData: DataTableType[] = generateDataTableData(5)
+const defaultData: DataTableType[] = generateDataTableData(5).data
 
 export default function Dashboard() {
   const [isExpanded, setIsExpanded] = useIsExpanded();
