@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'UUID is required' }, { status: 400 })
   }
   try {
-    const docRef = doc(db, 'DataTable', 'worker')
+    const docRef = doc(db, 'DataTable', uuid)
     const docSnap = await getDoc(docRef)
 
     if (docSnap.exists()) {

@@ -1,60 +1,39 @@
-import { NextRequest } from 'next/server'
-import { getAuth } from 'firebase/auth'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { getAuth } from 'firebase/auth' // Consider using server-side auth methods if applicable
 import { db } from '@/firebase/config'
-import { doc, getDoc, setDoc } from 'firebase/firestore'
-export default async function PUT(req: NextRequest) {
-  const auth = getAuth()
-  if (!auth.currentUser) {
-    return NextResponse.json(
-      { error: 'User not authenticated' },
-      { status: 401 }
-    )
-  }
+import { doc, updateDoc } from 'firebase/firestore'
 
+export default async function PUT(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const uuid = searchParams.get('uuid')
 
+  if (!uuid) {
+    return NextResponse.json(
+      { error: 'Missing uuid parameter' },
+      { status: 400 }
+    )
+  }
+
   try {
-    const docRef = doc(db, 'DataTable', 'worker')
-    const docSnap = await getDoc(docRef)
+    const data = await req.json() // Await the promise returned by req.json()
 
-    if (docSnap.exists()) {
-      const documentData = docSnap.data()
-      const profilesArray = documentData.data
-
-      if (profilesArray) {
-        const foundProfile = profilesArray.find(
-          (item: { uuid: string }) => item.uuid === uuid
-        )
-
-        if (foundProfile) {
-          const updatedProfile = await req.json()
-          Object.assign(foundProfile, updatedProfile)
-
-          await setDoc(docRef, { data: profilesArray })
-
-          return NextResponse.json(foundProfile, { status: 200 })
-        } else {
-          return NextResponse.json(
-            { error: `Profile with UUID ${uuid} not found` },
-            { status: 404 }
-          )
-        }
-      } else {
-        return NextResponse.json(
-          { error: "Profiles array field not found in document 'worker'" },
-          { status: 404 }
-        )
-      }
-    } else {
+    if (!data || Object.keys(data).length === 0) {
       return NextResponse.json(
-        { error: "Document 'worker' not found!" },
-        { status: 404 }
+        { error: 'Request body is empty' },
+        { status: 400 }
       )
     }
+
+    const docRef = doc(db, 'DataTable', uuid)
+    await updateDoc(docRef, data) // Use the resolved data
+
+    return NextResponse.json(
+      { message: 'Profile updated successfully' },
+      { status: 200 }
+    ) // Add success response
   } catch (error) {
     console.error('Error updating profile:', error)
+    // Check for specific Firestore errors if needed
     return NextResponse.json(
       { error: 'Failed to update profile' },
       { status: 500 }
