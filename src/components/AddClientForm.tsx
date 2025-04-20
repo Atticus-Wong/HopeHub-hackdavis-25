@@ -31,9 +31,10 @@ const ethnicityOptions = ['Caucasian', 'Hispanic', 'Asian', 'African American', 
 interface AddClientFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void; // Add onSuccess callback prop
 }
 
-export default function AddClientForm({ open, onOpenChange }: AddClientFormProps) {
+export default function AddClientForm({ open, onOpenChange, onSuccess }: AddClientFormProps) {
   const [name, setName] = useState('');
   const [gender, setGender] = useState('');
   const [ethnicity, setEthnicity] = useState('');
@@ -77,11 +78,14 @@ export default function AddClientForm({ open, onOpenChange }: AddClientFormProps
         console.log('Profile added successfully:', result.data);
         resetForm();
         onOpenChange(false);
+        onSuccess?.(); // Call the onSuccess callback if provided
       } else {
         console.error('Failed to add profile:', result.error);
+        // TODO: Show error to user
       }
     } catch (error) {
       console.error('Error submitting form:', error);
+      // TODO: Show error to user
     }
   };
 
