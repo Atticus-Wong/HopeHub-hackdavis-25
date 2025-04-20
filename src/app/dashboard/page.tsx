@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -73,13 +74,13 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchClients = async () => {
       try {
-        const response = await fetch('/api/fetchData')
+        const response = await fetch("/api/fetchData");
         if (!response.ok) {
-          console.error("Error fetching all data:", response.statusText)
-          return
+          console.error("Error fetching all data:", response.statusText);
+          return;
         }
-        const data = await response.json()
-        console.log("Fetched all data:", data)
+        const data = await response.json();
+        console.log("Fetched all data:", data);
 
         const list = data.map((user: any) => ({
           id: user.uuid,
@@ -96,8 +97,8 @@ export default function Dashboard() {
 
   const suggestions = term
     ? directory
-      .filter((c) => c.name.toLowerCase().includes(term.toLowerCase()))
-      .slice(0, 8)
+        .filter((c) => c.name.toLowerCase().includes(term.toLowerCase()))
+        .slice(0, 8)
     : [];
 
   const handleSelect = (uuid: string) => {
