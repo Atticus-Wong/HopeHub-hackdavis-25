@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { DataTable as DataTableType, AGEGROUP } from '@/types/types' // Import AGEGROUP and SERVICES
+import { DataTable as DataTableType, AGEGROUP, BaseQueue } from '@/types/types' // Import AGEGROUP and SERVICES
 import { SERVICES } from '@/types/enums'
 
 export function cn(...inputs: ClassValue[]) {
@@ -23,7 +23,7 @@ export function generateDataTableData(amount: number) {
     'African American',
     'Other',
   ]
-  const genders = ['Male', 'Female', 'Non-binary', 'Other']
+  const genders = ['Male', 'Female', 'Other']
 
   for (let i = 0; i < amount; i++) {
     const benefitsCount = Math.floor(Math.random() * (serviceTypes.length + 1)) // 0 to 3 benefits
@@ -62,4 +62,43 @@ export function generateDataTableData(amount: number) {
   return { data }
 }
 
-const generateRandomService = (amount: number) => {}
+export const uuidv4 = () => {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0
+    const v = c === 'x' ? r : (r & 0x3) | 0x8
+    return v.toString(16)
+  })
+}
+
+
+export const generateFakeStuff = (amount: number) => {
+  const data: BaseQueue[] = []
+  const serviceTypes: SERVICES[] = [
+    SERVICES.SHOWER,
+    SERVICES.LAUNDRY,
+    SERVICES.MNGMT,
+  ]
+  const names = [
+    'John Doe',
+    'Jane Smith',
+    'Alice Johnson',
+    'Bob Brown',
+    'Charlie Davis',
+    'Diana Prince',
+    'Ethan Hunt',
+    'Felicity Smoak',
+    'George Clooney',
+    'Hannah Montana',
+  ]
+  const createdAt = new Date().toISOString()
+  for (let i = 0; i < amount; i++) {
+    const entry: BaseQueue = {
+      type: serviceTypes[Math.floor(Math.random() * serviceTypes.length)],
+      name: names[Math.floor(Math.random() * names.length)],
+      uuid: `uuid-${i}-${Date.now()}`,
+      createdAt,
+    }
+    data.push(entry)
+  }
+  return { data }
+}

@@ -3,7 +3,7 @@ import { SERVICES } from './enums'
 
 export type DataTable = {
   uuid: string
-  name: string // maria
+  name: string
   ethnicity: string
   gender: string
   ageGroup: AGEGROUP
