@@ -1,69 +1,74 @@
-'use client';
-import { Button } from "@/components/ui/button"
-import { generateDataTableData, generateDataTableUuids, generateFakeStuff } from "@/lib/utils"
+"use client";
+import { Button } from "@/components/ui/button";
+import {
+  generateDataTableData,
+  generateDataTableUuids,
+  generateFakeStuff,
+} from "@/lib/utils";
 import { SERVICES } from "@/types/enums"; // Import SERVICES enum if needed for transformation
 import { DataTable as DataTableType, BaseQueue } from "@/types/types"; // Import BaseQueue type
 import { addDoc, collection, doc, setDoc, updateDoc, arrayUnion, getDoc } from "firebase/firestore"; // Ensure getDoc is imported if you need to read first, but arrayUnion handles appending directly
+import { addDoc, collection, doc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/firebase/config";
 import { handleDeleteFromQueue, handleAppendToQueue, handleAddProfile } from "@/lib/endpoint";
 
 export default function Test() {
-
   const testFetchProfile = async () => {
-    const response = await fetch('/api/fetchProfile?uuid=uuid-2-1745109832048')
+    const response = await fetch("/api/fetchProfile?uuid=uuid-2-1745109832048");
     if (!response.ok) {
-      console.error("Error fetching profile:", response.statusText)
-      return
+      console.error("Error fetching profile:", response.statusText);
+      return;
     }
-    const data = await response.json()
-    console.log("Fetched profile data:", data)
-  }
+    const data = await response.json();
+    console.log("Fetched profile data:", data);
+  };
 
   const handleWriteMockQueueData = async () => {
     const docRef = doc(db, "BaseQueue", 'Meals')
     const data = generateFakeStuff(3)
     try {
-      await setDoc(docRef, data)
+      await setDoc(docRef, data);
     } catch (error) {
-      console.error("Error writing mock data to Firestore:", error)
+      console.error("Error writing mock data to Firestore:", error);
     }
-  }
+  };
 
   const handleWriteMockData = async () => {
-    const docRef = doc(db, "DataTable", 'worker')
-    const generatedData = generateDataTableData(100)
+    // Generate data using the utility function (returns DataTableType[] from @/types/types)
+    const docRef = doc(db, "DataTable", "worker");
+    const generatedData = generateDataTableData(100);
     try {
-      await setDoc(docRef, generatedData)
+      await setDoc(docRef, generatedData);
     } catch (error) {
-      console.error("Error writing mock data to Firestore:", error)
+      console.error("Error writing mock data to Firestore:", error);
     }
-  }
+  };
 
   const handleFetchAllData = async () => {
-    const response = await fetch('/api/fetchData')
+    const response = await fetch("/api/fetchData");
     if (!response.ok) {
-      console.error("Error fetching all data:", response.statusText)
-      return
+      console.error("Error fetching all data:", response.statusText);
+      return;
     }
-    const data = await response.json()
-    console.log("Fetched all data:", data)
-  }
+    const data = await response.json();
+    console.log("Fetched all data:", data);
+  };
 
   const handleFetchQueue = async () => {
-    const response = await fetch('/api/fetchBaseQueue/meals')
+    const response = await fetch("/api/fetchBaseQueue/meals");
     if (!response.ok) {
-      console.error("Error fetching queue data:", response.statusText)
-      return
+      console.error("Error fetching queue data:", response.statusText);
+      return;
     }
-    const data = await response.json()
-    console.log("Fetched queue data:", data)
-  }
-
+    const data = await response.json();
+    console.log("Fetched queue data:", data);
+  };
   const handleOne = async () => {
     try {
-      const newData = generateDataTableUuids();
-      const docRef = await addDoc(collection(db, 'DataTable'), newData);
-      console.log("Document written with ID: ", docRef.id);
+      const docRef = await addDoc(
+        collection(db, "DataTable"),
+        generateDataTableUuids()
+      );
     } catch (error) {
       console.error("Error adding document: ", error);
     }

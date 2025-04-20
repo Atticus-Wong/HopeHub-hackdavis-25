@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState, useCallback } from "react"; // Import useCallback
@@ -78,8 +79,8 @@ export default function Dashboard() {
 
   const suggestions = term
     ? directory
-      .filter((c) => c.name.toLowerCase().includes(term.toLowerCase()))
-      .slice(0, 8)
+        .filter((c) => c.name.toLowerCase().includes(term.toLowerCase()))
+        .slice(0, 8)
     : [];
 
   const handleSelect = (uuid: string) => {
