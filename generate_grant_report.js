@@ -1,10 +1,15 @@
 import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
+import { writeFile, unlink, rename } from "fs/promises";
+import { exec } from "child_process";
+import { promisify } from "util";
 
 dotenv.config();
 
+const execAsync = promisify(exec);
+
 const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
+  apiKey: process.env.GOOGLE_API_KEY,
 });
 
 const SYSTEM_PROMPT = `
@@ -52,8 +57,9 @@ f. As applicable, explain any plans for ongoing funding, expansion, modification
 replication of the program.
 g. List other funding sources and amounts received during this period for this program. 
 
-
-• Output only LaTeX code. No Markdown or HTML.
+**IMPORTANT**:  
+Output **only** the LaTeX content that belongs **between** \\begin{document} and \\end{document}.  
+Do **not** include \\documentclass, any \\usepackage statements, or any other preamble.
 `;
 
 const MOCK_DATA = {
@@ -83,7 +89,8 @@ const MOCK_DATA = {
 };
 
 async function main() {
-  const result = await ai.models.generateContent({
+  console.log("🚀 Generating LaTeX body from Gemini…");
+  const { candidates = [] } = await ai.models.generateContent({
     model: "gemini-2.0-flash",
     contents: [
       { role: "user", parts: [{ text: SYSTEM_PROMPT }] },
@@ -91,14 +98,67 @@ async function main() {
     ],
   });
 
-  // 🛡 Safely access the returned content
-  const candidates = result.candidates ?? [];
-  const output =
-    candidates[0]?.content?.parts?.[0]?.text ?? "⚠️ No content returned";
+  const rawBody = candidates[0]?.content?.parts?.[0]?.text;
+  if (!rawBody) throw new Error("⚠️ No LaTeX body returned by Gemini.");
 
-  console.log("───── BEGIN LATEX CODE ─────\n");
-  console.log(output);
-  console.log("\n───── END LATEX CODE ─────");
+  // SANITIZE: remove leftover preamble commands & escape stray '&'
+  const bodyTex = rawBody
+    .replace(
+      /^[ \t]*\\(documentclass|usepackage|geometry|pagenumbering|title|author|date|maketitle)\b.*$/gm,
+      ""
+    )
+    .replace(/^[ \t]*\\begin\{document\}.*$/gm, "")
+    .replace(/^[ \t]*\\end\{document\}.*$/gm, "")
+    .replace(/(?<!\\)&/g, "\\&")
+    .trim();
+
+  console.log("✅ Sanitized body — wrapping in full document…");
+
+  const fullTex = `
+\\documentclass[12pt]{article}
+\\usepackage[margin=1in]{geometry}
+\\usepackage{hyperref}
+\\pagenumbering{arabic}
+
+% Document metadata
+\\title{Grant Report: ${MOCK_DATA.reportPeriod}}
+\\author{Fourth \\& Hope}
+\\date{${MOCK_DATA.dateGenerated}}
+
+\\begin{document}
+\\maketitle
+
+${bodyTex}
+
+\\end{document}
+`.trim();
+
+  // 3. Write, compile, rename, cleanup
+  const texFile = "report.tex";
+  const intermediatePdf = "report.pdf";
+  const finalPdf = "FourthAndHope_Q1-2025.pdf";
+
+  await writeFile(texFile, fullTex, "utf8");
+  console.log("✅ Wrote report.tex — compiling with Tectonic…");
+
+  try {
+    await execAsync(`tectonic --outdir=. ${texFile}`);
+    // Only rename if the intermediate PDF exists
+    await rename(intermediatePdf, finalPdf);
+    console.log(`🎉 PDF ready: ${finalPdf}`);
+  } catch (err) {
+    console.error("🚨 Tectonic error:", err);
+    const all = await import("fs/promises").then((m) =>
+      m.readFile(texFile, "utf8")
+    );
+    console.error("── report.tex (lines 15–25) ──");
+    console.error(all.split("\n").slice(14, 25).join("\n"));
+  } finally {
+    await unlink(texFile).catch(() => {});
+  }
 }
 
-main().catch(console.error);
+main().catch((err) => {
+  console.error("🚨 Grant‑report pipeline failed:", err);
+  process.exit(1);
+});
