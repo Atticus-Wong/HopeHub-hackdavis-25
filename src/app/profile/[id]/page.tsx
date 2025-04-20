@@ -1,19 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, notFound, useRouter } from "next/navigation"; // Import useRouter
+import React, { useEffect, useState } from "react";
+import { useParams, useRouter, notFound } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
-import { getAuth, onAuthStateChanged, User } from "firebase/auth"; // Import auth functions
-import { db, auth } from "@/firebase/config"; // Import auth instance
+import { onAuthStateChanged, User } from "firebase/auth";
+import { db, auth } from "@/firebase/config";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, ChevronLeft } from "lucide-react"; // Import ChevronLeft
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Plus, ChevronLeft } from "lucide-react";
 import NewRequestForm from "@/components/NewRequestForm";
 import { SERVICES } from "@/types/enums";
-
-/* ───────────── Types ───────────── */
 
 type ServiceRow = {
   type: string;
@@ -38,8 +36,6 @@ type ClientDoc = {
   services: ServiceRow[];
   meds: MedicationRow[];
 };
-
-/* ───────────── Mock Data ───────────── */
 
 const MOCK_SERVICES: ServiceRow[] = [
   {
@@ -81,43 +77,54 @@ const MOCK_MEDICATIONS: MedicationRow[] = [
   },
 ];
 
-/* ───────────── Page Component ───────────── */
+const categoryColors: Record<string, string> = {
+  Housing: "bg-blue-100 text-blue-800",
+  Health: "bg-green-100 text-green-800",
+  Employment: "bg-purple-100 text-purple-800",
+  Food: "bg-amber-100 text-amber-800",
+};
+
+const statusColors: Record<string, string> = {
+  Active: "bg-emerald-100 text-emerald-800",
+  Pending: "bg-orange-100 text-orange-800",
+  Closed: "bg-gray-100 text-gray-800",
+};
 
 export default function ProfilePage() {
   const { id } = useParams<{ id: string }>();
-  const router = useRouter(); // Get router instance
-  const [user, setUser] = useState<User | null>(null); // Store user object
-  const [authLoading, setAuthLoading] = useState(true); // Loading state for auth check
-  const [loading, setLoading] = useState(true); // Loading state for client data
+  const router = useRouter();
+
+  // Auth & data loading state
+  const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [client, setClient] = useState<ClientDoc | null>(null);
 
+  // Profile data
   const [services, setServices] = useState<ServiceRow[]>([]);
   const [meds, setMeds] = useState<MedicationRow[]>([]);
   const [isRequestFormOpen, setIsRequestFormOpen] = useState(false);
 
-  // Check authentication status on mount
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-        console.log("Profile Page: User is authenticated:", currentUser.uid);
-      } else {
-        setUser(null);
-        console.log("Profile Page: User not authenticated, redirecting to login.");
-        router.push('/login'); // Redirect if not logged in
-      }
-      setAuthLoading(false); // Auth check complete
-    });
+  // Tabs state for medications
+  const [medTab, setMedTab] = useState<"today" | "history">("today");
 
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
+  // 1) Check authentication
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (u) => {
+      if (u) {
+        setUser(u);
+      } else {
+        router.push("/login");
+      }
+      setAuthLoading(false);
+    });
+    return () => unsub();
   }, [router]);
 
-  /* fetch client data only if authenticated */
+  // 2) Fetch client data once authenticated
   useEffect(() => {
-    // Only fetch if auth check is done and user is authenticated
     if (!authLoading && user) {
-      setLoading(true); // Start loading client data
+      setLoading(true);
       (async () => {
         const snap = await getDoc(doc(db, "DataTable", id));
         if (!snap.exists()) {
@@ -125,27 +132,24 @@ export default function ProfilePage() {
           return;
         }
         const raw = snap.data() as any;
-
         setClient({
           name: raw.name,
           ageGroup: raw.ageGroup,
           gender: raw.gender,
           ethnicity: raw.ethnicity,
-          services: MOCK_SERVICES, // Replace with actual data if available
-          meds: MOCK_MEDICATIONS,   // Replace with actual data if available
+          services: MOCK_SERVICES,
+          meds: MOCK_MEDICATIONS,
         });
-        setServices(MOCK_SERVICES); // Replace with actual data if available
-        setMeds(MOCK_MEDICATIONS);   // Replace with actual data if available
-        setLoading(false); // Client data loaded
+        setServices(MOCK_SERVICES);
+        setMeds(MOCK_MEDICATIONS);
+        setLoading(false);
       })();
     } else if (!authLoading && !user) {
-        // If auth check is done and user is not logged in,
-        // ensure data loading state is false as fetch won't happen.
-        setLoading(false);
+      setLoading(false);
     }
-  }, [id, authLoading, user]); // Depend on auth state and user
+  }, [authLoading, user, id]);
 
-  /* status handlers */
+  // Status update handlers
   const updateServiceStatus = (
     type: string,
     status: "In Queue" | "Completed"
@@ -159,27 +163,21 @@ export default function ProfilePage() {
       prev.map((m) => (m.type === type ? { ...m, status } : m))
     );
 
+  // New service request
   const handleNewRequestSubmit = (serviceType: SERVICES, note: string) => {
-    console.log("New Request Submitted:", { serviceType, note, clientId: id });
-
-    setServices((prevServices) => {
-      // Find if a service of the same type already exists and is "In Queue"
-      const existingServiceIndex = prevServices.findIndex(
+    setServices((prev) => {
+      const idx = prev.findIndex(
         (s) => s.type === serviceType && s.status === "In Queue"
       );
-
-      if (existingServiceIndex !== -1) {
-        // If found, increment the quantity of the existing service
-        return prevServices.map((s, index) =>
-          index === existingServiceIndex
-            ? { ...s, quantity: s.quantity + 1 } // Increment quantity
-            : s
+      if (idx > -1) {
+        return prev.map((s, i) =>
+          i === idx ? { ...s, quantity: s.quantity + 1 } : s
         );
-      } else {
-        // If not found, create a new request object
-        const newRequest: ServiceRow = {
+      }
+      return [
+        {
           type: serviceType,
-          quantity: 1, // Start with quantity 1
+          quantity: 1,
           time: new Date().toLocaleTimeString([], {
             hour: "numeric",
             minute: "2-digit",
@@ -190,75 +188,64 @@ export default function ProfilePage() {
             year: "2-digit",
           }),
           status: "In Queue",
-        };
-        // Add the new request to the beginning of the array
-        return [newRequest, ...prevServices];
-      }
+        },
+        ...prev,
+      ];
     });
-
-    setIsRequestFormOpen(false); // Close the form
+    setIsRequestFormOpen(false);
   };
 
-  // Show loading indicator while checking auth
+  // Loading states
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="animate-pulse text-muted-foreground">Checking authentication...</p>
+        <p className="animate-pulse text-gray-500">
+          Checking authentication...
+        </p>
       </div>
     );
   }
-
-  // If not authenticated, the redirect should have happened, but return null just in case.
-  // Also show loading while fetching client data.
   if (!user || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="animate-pulse text-muted-foreground">Loading profile…</p>
+        <p className="animate-pulse text-gray-500">Loading profile…</p>
       </div>
     );
   }
-
-  // If client data failed to load after auth check (e.g., notFound was called but didn't redirect fully yet)
   if (!client) return null;
 
-  // Render profile page only if authenticated and client data is loaded
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#e6f7e9] to-[#c8e6c9] p-4 md:p-8">
-      <div className="mx-auto max-w-6xl">
-        {/* Go Back Button */}
+      <div className="mx-auto max-w-7xl">
+        {/* Back */}
         <Button
           variant="link"
-          className="mb-4 text-muted-foreground hover:text-foreground px-0 hover:cursor-pointer"
-          onClick={() => router.push('/dashboard')} // Navigate to dashboard
+          className="mb-4 px-0 text-gray-700 hover:text-gray-900"
+          onClick={() => router.push("/dashboard")}
         >
-          <ChevronLeft className="mr-1 h-4 w-4" />
+          <ChevronLeft className="mr-1 h-5 w-5" />
           Go back to dashboard
         </Button>
 
         {/* Header */}
-        <Card className="mb-6 overflow-hidden bg-[#06803D] rounded-xl border-lg shadow-sm">
-          <CardHeader className="text-white">
-            <h1 className="text-2xl font-medium">{client.name}</h1>
+        <Card className="mb-6 bg-green-600 text-white rounded-xl shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-2xl">{client.name}</CardTitle>
           </CardHeader>
         </Card>
 
         <div className="grid gap-6 md:grid-cols-2">
-          {/* Column 1: Demographics and Medications */}
-          <div className="flex flex-col gap-6"> {/* Changed gap to 6 to match grid */}
-            {/* Demographics */}
-            <Card className="rounded-xl border-0 shadow-sm">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-xl font-medium">
-                  Demographics
-                </CardTitle>
-                {/* Add Edit Button */}
-                <Button className="bg-green-200 text-green-800 hover:bg-green-300">
+          {/* Left: Demographics & Medications */}
+          <div className="flex flex-col gap-6">
+            <Card className="rounded-xl shadow-sm">
+              <CardHeader className="flex justify-between items-center pb-2">
+                <CardTitle className="text-xl">Demographics</CardTitle>
+                <Button size="sm" variant="outline">
                   Edit
                 </Button>
               </CardHeader>
               <CardContent>
-                {/* Adjust grid layout for a more rectangular feel */}
-                <div className="grid grid-cols-3 gap-x-6 gap-y-4 pt-2">
+                <div className="grid grid-cols-3 gap-4 pt-2">
                   <Demographic label="Age‑Group" value={client.ageGroup} />
                   <Demographic label="Gender" value={client.gender ?? "—"} />
                   <Demographic
@@ -269,11 +256,10 @@ export default function ProfilePage() {
               </CardContent>
             </Card>
 
-            {/* Medications */}
             <MedicationsCard meds={meds} onStatusChange={updateMedStatus} />
           </div>
 
-          {/* Column 2: Services */}
+          {/* Right: Services */}
           <ServicesCard
             services={services}
             onStatusChange={updateServiceStatus}
@@ -291,12 +277,12 @@ export default function ProfilePage() {
   );
 }
 
-/* ───────────── Helper Components ───────────── */
+/* ─── Helper Components ───────────────────────────────────────────────── */
 
 function Demographic({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col items-center">
-      <span className="font-medium text-sm text-muted-foreground">{label}</span>
+      <span className="text-sm text-gray-500">{label}</span>
       <span className="text-lg">{value}</span>
     </div>
   );
@@ -315,10 +301,11 @@ function StatusSelect<T extends string>({
     <select
       value={status}
       onChange={(e) => onChange(e.target.value as T)}
-      className={`rounded-full px-3 py-1 text-sm font-medium appearance-none cursor-pointer border-0 pr-6 bg-opacity-70 ${status === "Completed"
-        ? "bg-green-100 text-green-800"
-        : "bg-amber-100 text-amber-800"
-        }`}
+      className={`rounded-full px-3 py-1 text-sm font-medium appearance-none cursor-pointer border-0 pr-6 ${
+        status === "Completed"
+          ? "bg-green-100 text-green-800"
+          : "bg-yellow-100 text-yellow-800"
+      }`}
     >
       {options.map((o) => (
         <option key={o}>{o}</option>
@@ -326,8 +313,6 @@ function StatusSelect<T extends string>({
     </select>
   );
 }
-
-/* ───────────── Services Card ───────────── */
 
 function ServicesCard({
   services,
@@ -339,13 +324,10 @@ function ServicesCard({
   onNewRequestClick: () => void;
 }) {
   return (
-    <Card className="rounded-xl border-0 shadow-sm">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-xl font-medium">Services</CardTitle>
-        <Button
-          className="bg-green-200 text-green-800 hover:bg-green-300"
-          onClick={onNewRequestClick}
-        >
+    <Card className="rounded-xl shadow-sm">
+      <CardHeader className="flex justify-between items-center pb-2">
+        <CardTitle className="text-xl">Services</CardTitle>
+        <Button size="sm" variant="outline" onClick={onNewRequestClick}>
           <Plus className="mr-1 h-4 w-4" /> New Request
         </Button>
       </CardHeader>
@@ -355,7 +337,10 @@ function ServicesCard({
             <thead className="bg-[#d6dce5]">
               <tr>
                 {["Type", "Qty", "Time", "Date", "Status"].map((h) => (
-                  <th key={h} className="px-4 py-3 text-left font-medium">
+                  <th
+                    key={h}
+                    className="px-4 py-2 text-left text-sm font-medium"
+                  >
                     {h}
                   </th>
                 ))}
@@ -364,11 +349,11 @@ function ServicesCard({
             <tbody>
               {services.map((s) => (
                 <tr key={s.type} className="border-t">
-                  <td className="px-4 py-3">{s.type}</td>
-                  <td className="px-4 py-3">{s.quantity}</td>
-                  <td className="px-4 py-3">{s.time}</td>
-                  <td className="px-4 py-3">{s.date}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-2 text-sm">{s.type}</td>
+                  <td className="px-4 py-2 text-sm">{s.quantity}</td>
+                  <td className="px-4 py-2 text-sm">{s.time}</td>
+                  <td className="px-4 py-2 text-sm">{s.date}</td>
+                  <td className="px-4 py-2">
                     <StatusSelect
                       status={s.status}
                       options={["In Queue", "Completed"]}
@@ -387,8 +372,6 @@ function ServicesCard({
   );
 }
 
-/* ───────────── Medications Card ───────────── */
-
 function MedicationsCard({
   meds,
   onStatusChange,
@@ -397,16 +380,16 @@ function MedicationsCard({
   onStatusChange: (type: string, status: "Awaiting" | "Completed") => void;
 }) {
   return (
-    <Card className="rounded-xl border-0 shadow-sm md:col-span-2">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-xl font-medium">Medications</CardTitle>
-        <Button className="bg-green-200 text-green-800 hover:bg-green-300">
+    <Card className="rounded-xl shadow-sm">
+      <CardHeader className="flex justify-between items-center pb-2">
+        <CardTitle className="text-xl">Medications</CardTitle>
+        <Button size="sm" variant="outline">
           <Plus className="mr-1 h-4 w-4" /> New Medication
         </Button>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="today">
-          <TabsList className="mb-4 grid w-full max-w-[200px] grid-cols-2 bg-gray-200">
+          <TabsList className="mb-4 grid w-full max-w-xs grid-cols-2 bg-gray-200">
             <TabsTrigger
               value="today"
               className="data-[state=active]:bg-green-200 data-[state=active]:text-green-800"
@@ -427,7 +410,10 @@ function MedicationsCard({
                 <thead className="bg-[#d6dce5]">
                   <tr>
                     {["Type", "Time", "Date", "Status"].map((h) => (
-                      <th key={h} className="px-4 py-3 text-left font-medium">
+                      <th
+                        key={h}
+                        className="px-4 py-2 text-left text-sm font-medium"
+                      >
                         {h}
                       </th>
                     ))}
@@ -436,10 +422,10 @@ function MedicationsCard({
                 <tbody>
                   {meds.map((m) => (
                     <tr key={m.type} className="border-t">
-                      <td className="px-4 py-3">{m.type}</td>
-                      <td className="px-4 py-3">{m.time}</td>
-                      <td className="px-4 py-3">{m.date}</td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-2 text-sm">{m.type}</td>
+                      <td className="px-4 py-2 text-sm">{m.time}</td>
+                      <td className="px-4 py-2 text-sm">{m.date}</td>
+                      <td className="px-4 py-2">
                         <StatusSelect
                           status={m.status}
                           options={["Awaiting", "Completed"]}
@@ -456,7 +442,7 @@ function MedicationsCard({
           </TabsContent>
 
           <TabsContent value="history">
-            <Empty label="Medication history will be displayed here." />
+            <Empty label="Medication history will appear here." />
           </TabsContent>
         </Tabs>
       </CardContent>
@@ -464,10 +450,6 @@ function MedicationsCard({
   );
 }
 
-/* ───────────── Small Utility ───────────── */
-
 function Empty({ label }: { label: string }) {
-  return (
-    <div className="p-8 text-center text-sm text-muted-foreground">{label}</div>
-  );
+  return <div className="p-6 text-center text-sm text-gray-500">{label}</div>;
 }
