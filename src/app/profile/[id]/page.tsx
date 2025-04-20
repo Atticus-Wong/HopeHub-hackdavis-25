@@ -77,18 +77,18 @@ const MOCK_MEDICATIONS: MedicationRow[] = [
   },
 ];
 
-const categoryColors: Record<string, string> = {
-  Housing: "bg-blue-100 text-blue-800",
-  Health: "bg-green-100 text-green-800",
-  Employment: "bg-purple-100 text-purple-800",
-  Food: "bg-amber-100 text-amber-800",
-};
+// const categoryColors: Record<string, string> = {
+//   Housing: "bg-blue-100 text-blue-800",
+//   Health: "bg-green-100 text-green-800",
+//   Employment: "bg-purple-100 text-purple-800",
+//   Food: "bg-amber-100 text-amber-800",
+// };
 
-const statusColors: Record<string, string> = {
-  Active: "bg-emerald-100 text-emerald-800",
-  Pending: "bg-orange-100 text-orange-800",
-  Closed: "bg-gray-100 text-gray-800",
-};
+// const statusColors: Record<string, string> = {
+//   Active: "bg-emerald-100 text-emerald-800",
+//   Pending: "bg-orange-100 text-orange-800",
+//   Closed: "bg-gray-100 text-gray-800",
+// };
 
 export default function ProfilePage() {
   const { id } = useParams<{ id: string }>();
@@ -106,7 +106,7 @@ export default function ProfilePage() {
   const [isRequestFormOpen, setIsRequestFormOpen] = useState(false);
 
   // Tabs state for medications
-  const [medTab, setMedTab] = useState<"today" | "history">("today");
+  // const [medTab, setMedTab] = useState<"today" | "history">("today");
 
   // 1) Check authentication
   useEffect(() => {
@@ -164,7 +164,7 @@ export default function ProfilePage() {
     );
 
   // New service request
-  const handleNewRequestSubmit = (serviceType: SERVICES, note: string) => {
+  const handleNewRequestSubmit = (serviceType: SERVICES) => {
     setServices((prev) => {
       const idx = prev.findIndex(
         (s) => s.type === serviceType && s.status === "In Queue"
