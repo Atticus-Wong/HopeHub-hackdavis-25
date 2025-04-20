@@ -3,7 +3,7 @@ import { getAuth } from 'firebase/auth' // Consider using server-side auth metho
 import { db } from '@/firebase/config'
 import { doc, updateDoc } from 'firebase/firestore'
 
-export default async function PUT(req: NextRequest) {
+export async function PUT(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const uuid = searchParams.get('uuid')
 
