@@ -156,7 +156,7 @@ export default function Test() {
     }
   }
 
-  const handleThree = async (type: string, dataToAppend: BaseQueue) => {
+  const appendToQueue = async (type: string, dataToAppend: BaseQueue) => {
     const docRef = doc(db, 'BaseQueue', type);
     try {
       await updateDoc(docRef, {
@@ -167,6 +167,9 @@ export default function Test() {
       console.error(`Error appending data to ${type} queue:`, error);
     }
   }
+
+
+
 
   return (
     <>
