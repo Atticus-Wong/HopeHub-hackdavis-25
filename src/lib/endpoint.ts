@@ -26,6 +26,53 @@ export const handleAppendToQueue = async (
   }
 }
 
+export const handleAddProfile = async (
+  name: string,
+  ethnicity: string,
+  gender: string,
+  ageGroup: string,
+  benefits: { name: SERVICES; value: number }[]
+) => {
+  try {
+    const response = await fetch(`/api/addProfile`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: name,
+        ethnicity: ethnicity,
+        gender: gender,
+        ageGroup: ageGroup,
+        benefits: benefits,
+      }),
+    })
+
+    if (!response.ok) {
+      // Handle HTTP errors
+      const errorText = await response.text()
+      console.error(
+        `Error adding profile: ${response.status} ${response.statusText}`,
+        errorText
+      )
+      // Optionally, throw an error or return an error indicator
+      return { success: false, error: `HTTP error ${response.status}` }
+    }
+
+    // Handle successful response
+    const result = await response.json()
+    console.log('Profile added successfully:', result)
+    return { success: true, data: result }
+  } catch (error) {
+    // Handle network errors or other exceptions
+    console.error('Failed to add profile:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }
+  }
+}
+
 export const handleAppendService = async (
   uuid: string,
   servicesToUpdate: SERVICES[]
@@ -156,12 +203,12 @@ export const handleFetchData = async (): Promise<
       console.error('Error fetching all data:', response.statusText)
       return undefined // Return undefined on error
     }
-    const data: DataTableType[] = await response.json() // Expect an array of DataTableType
+    const data: any = await response.json() // Expect an array of DataTableType
     console.log('Fetched all data:', data)
 
     // Map data to the format needed for the directory
-    const list = data.map((user) => ({
-      id: user.uuid,
+    const list = data.map((user: any) => ({
+      id: user.id,
       name: user.name,
     }))
     return list // Return the processed list

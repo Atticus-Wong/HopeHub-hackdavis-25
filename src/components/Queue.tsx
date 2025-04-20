@@ -179,29 +179,33 @@ export default function Queue() {
                   <CardTitle className="text-lg">{queueName}</CardTitle>
                 </CardHeader>
                 <CardContent className="p-4">
-                  {/* Header Row for Name and Wait Time */}
-                  <div className="flex items-center justify-between px-4 py-2 text-xs font-semibold text-black dark:text-gray-400 border-gray-200 dark:border-gray-700 bg-[#C1CAD6] dark:bg-gray-800">
-                    <div className="flex-1 pr-2">Name</div>
-                    <div className="whitespace-nowrap">Wait Time</div>
-                  </div>
-                  <div className="divide-gray-200 dark:divide-gray-700"> {/* Added dark mode divider */}
-                    {Array.isArray(list) && list.length > 0 ? (
-                      list.map((e, i) => (
-                        <motion.div
-                          key={e.uuid} // Use uuid for a more stable key
-                          className="flex items-center justify-between px-4 py-3 text-sm" // Adjusted padding and text size
-                          initial={{ opacity: 0, y: 15 }}
-                          whileInView={{ opacity: 1, y: 0 }}
-                          viewport={{ once: true }}
-                          transition={{ duration: 0.35, delay: i * 0.08 }}
-                        >
-                          <div className="truncate pr-2 flex-1">{e.name}</div> {/* Added flex-1 */}
-                          <div className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">{`${e.wait}`}</div> {/* Adjusted text style */}
-                        </motion.div>
-                      ))
-                    ) : (
-                      <p className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">The {queueName.toLowerCase()} queue is empty.</p>
-                    )}
+                  {/* Wrapper div for border and rounding */}
+                  <div className="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
+                    {/* Header Row for Name and Wait Time */}
+                    <div className="flex items-center justify-between px-4 py-2 text-xs font-semibold text-black dark:text-gray-400 bg-[#C1CAD6] dark:bg-gray-800"> {/* Removed border classes, kept bg and rounded-t */}
+                      <div className="flex-1 pr-2">Name</div>
+                      <div className="whitespace-nowrap">Wait Time</div>
+                    </div>
+                    {/* List items container */}
+                    <div className="divide-y divide-gray-200 dark:divide-gray-700"> {/* Use divide-y for internal borders */}
+                      {Array.isArray(list) && list.length > 0 ? (
+                        list.map((e, i) => (
+                          <motion.div
+                            key={e.uuid} // Use uuid for a more stable key
+                            className="flex items-center justify-between px-4 py-3 text-sm" // Adjusted padding and text size
+                            initial={{ opacity: 0, y: 15 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.35, delay: i * 0.08 }}
+                          >
+                            <div className="truncate pr-2 flex-1">{e.name}</div> {/* Added flex-1 */}
+                            <div className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">{`${e.wait}`}</div> {/* Adjusted text style */}
+                          </motion.div>
+                        ))
+                      ) : (
+                        <p className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">The {queueName.toLowerCase()} queue is empty.</p>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>

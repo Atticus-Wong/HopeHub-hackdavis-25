@@ -8,7 +8,6 @@ import {
 import { SERVICES } from "@/types/enums"; // Import SERVICES enum if needed for transformation
 import { DataTable as DataTableType, BaseQueue } from "@/types/types"; // Import BaseQueue type
 import { addDoc, collection, doc, setDoc, updateDoc, arrayUnion, getDoc } from "firebase/firestore"; // Ensure getDoc is imported if you need to read first, but arrayUnion handles appending directly
-import { addDoc, collection, doc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/firebase/config";
 import { handleDeleteFromQueue, handleAppendToQueue, handleAddProfile } from "@/lib/endpoint";
 
