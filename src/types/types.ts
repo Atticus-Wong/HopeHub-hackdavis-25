@@ -2,11 +2,11 @@ import { SERVICES } from "./enums";
 // view only for a sheet
 
 export type DataTable = {
-  uuid: string;
-  name: string; // maria
-  ethnicity: string;
-  gender: string;
-  ageGroup: AGEGROUP;
+  uuid: string
+  name: string
+  ethnicity: string
+  gender: string
+  ageGroup: AGEGROUP
   benefits: {
     name: SERVICES;
     value: number;
