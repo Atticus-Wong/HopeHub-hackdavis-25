@@ -1,18 +1,27 @@
-import { AccountSidebar } from "@/components/Sidebar"
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-export default function AccountLayout({
+import type React from "react";
+import "@/app/globals.css";
+import { Inter } from "next/font/google";
+import { ThemeProvider } from "next-themes";
+
+const inter = Inter({ subsets: ["latin"] });
+
+export const metadata = {
+  title: "Fourth & Hope Staff Dashboard",
+  description: "Internal dashboard for Fourth & Hope staff members",
+};
+
+export default function RootLayout({
   children,
-}: {
-  children: React.ReactNode
-}) {
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <SidebarProvider>
-      <div className="absolute top-0 left-0 h-full">
-        <AccountSidebar />
-      </div>
-      <main className=" w-full h-full">
-        {children}
-      </main>
-    </SidebarProvider>
-  )
+    <html lang="en">
+      <body className={inter.className}>
+        <ThemeProvider attribute="class" defaultTheme="light">
+          {children}
+        </ThemeProvider>
+      </body>
+    </html>
+  );
 }

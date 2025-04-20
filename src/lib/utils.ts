@@ -8,7 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // Function to generate random data for DataTableType
-export function generateDataTableData(amount: number) {
+export function generateDataTableData(amount: number): DataTableType[] {
   const data: DataTableType[] = []
   const ageGroups = Object.values(AGEGROUP)
   const serviceTypes: SERVICES[] = [
