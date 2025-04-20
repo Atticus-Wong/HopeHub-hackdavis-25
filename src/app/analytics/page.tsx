@@ -1,6 +1,6 @@
 import { fetchInsights } from "./actions";
 import InsightCard from "@/components/analytics/InsightCard";
-import Charts from "@/components/analytics/Charts";
+// import Charts from "@/components/analytics/Charts";
 import { Suspense } from "react";
 
 export const metadata = {
@@ -29,7 +29,7 @@ export default async function AnalyticsPage() {
 
       {/* Chart */}
       <Suspense fallback={<p>Loading chart…</p>}>
-        <Charts data={data.byCategory} />
+        {/* <Charts data={data.byCategory} /> */}
       </Suspense>
 
       {/* Cerebrase Insight */}

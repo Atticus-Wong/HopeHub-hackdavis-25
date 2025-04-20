@@ -1,6 +1,7 @@
+
 import type React from "react";
 import "@/app/globals.css";
-import { Inter, Work_Sans } from "next/font/google";
+import { Work_Sans } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { AccountSidebar } from "@/components/Sidebar"; // Import the sidebar
 import { SidebarProvider } from "@/components/ui/sidebar"; // Import the provider

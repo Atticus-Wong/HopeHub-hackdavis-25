@@ -16,7 +16,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Home, User, Settings, LogOut, PanelLeft, MessageSquare, LayoutDashboard, BookOpenText, Lightbulb } from "lucide-react";
+import { ChartBarDecreasing, Home, User, Settings, LogOut, PanelLeft, MessageSquare, LayoutDashboard, BookOpenText, Lightbulb } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useIsExpanded } from '@/lib/atom';
@@ -99,14 +99,14 @@ export function AccountSidebar() {
               <span className={`transition-opacity duration-100 ${isExpanded ? 'opacity-100 delay-75' : 'opacity-0 w-0'}`}>Dashboard</span>
             </Link>
             <Link href="/analytics" className={`flex items-center rounded-md text-sm hover:bg-secondary ${isExpanded ? 'space-x-3 p-2' : 'w-8 h-8 justify-center p-0'}`}>
-              <LayoutDashboard className="h-5 w-5 min-w-[20px]" />
+              <ChartBarDecreasing className="h-5 w-5 min-w-[20px]" />
               <span className={`transition-opacity duration-100 ${isExpanded ? 'opacity-100 delay-75' : 'opacity-0 w-0'}`}>Analytics</span>
             </Link>
             <Link href="/messages" className={`flex items-center rounded-md text-sm hover:bg-secondary ${isExpanded ? 'space-x-3 p-2' : 'w-8 h-8 justify-center p-0'}`}>
               <MessageSquare className="h-5 w-5 min-w-[20px]" />
               <span className={`transition-opacity duration-100 ${isExpanded ? 'opacity-100 delay-75' : 'opacity-0 w-0'}`}>Messages</span>
             </Link>
-            <Link href="/management" className={`flex items-center rounded-md text-sm hover:bg-secondary ${isExpanded ? 'space-x-3 p-2' : 'w-8 h-8 justify-center p-0'}`}>
+            <Link href="/case" className={`flex items-center rounded-md text-sm hover:bg-secondary ${isExpanded ? 'space-x-3 p-2' : 'w-8 h-8 justify-center p-0'}`}>
               <Lightbulb className="h-5 w-5 min-w-[20px]" />
               <span className={`transition-opacity duration-100 ${isExpanded ? 'opacity-100 delay-75' : 'opacity-0 w-0'}`}>Case management</span>
             </Link>

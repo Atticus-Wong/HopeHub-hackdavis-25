@@ -13,7 +13,8 @@ const fadeUp = {
 // Loading Skeleton for the ServiceLogs card
 const ServiceLogsSkeleton = () => (
   <motion.div variants={fadeUp} className="h-full"> {/* Ensure motion div takes height */}
-    <p>My Service logs for {Date.now()}</p>
+    <p>{Date.now()}</p>
+    <p>My Service logs</p>
     <Card className="overflow-hidden shadow-md h-full"> {/* Ensure card takes height */}
       <CardContent className="p-0">
         <div className="p-4 space-y-3">
@@ -72,10 +73,10 @@ export default function ServiceLogs() {
     <motion.div variants={fadeUp} whileHover={{ scale: 1.02 }}>
       <p>My Service logs for {new Date().toLocaleDateString()}</p> {/* Changed to DateString for clarity */}
       <Card className="overflow-hidden shadow-md">
-        <CardContent className="p-0">
-          <div className="divide-y divide-gray-200">
+        <CardContent className="p-4"> {/* Changed from p-0 to p-4 */}
+          <div className="divide-y divide-gray-200 dark:divide-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg"> {/* Added border and rounded-lg */}
             {/* Header Row (Optional but recommended for clarity) */}
-            <div className="flex items-center justify-between p-4 font-semibold text-sm text-gray-600 dark:text-gray-400 dark:bg-gray-800">
+            <div className="flex items-center justify-between px-4 py-2 font-semibold text-sm text-gray-600 dark:text-gray-400 dark:bg-gray-800 bg-[#C1CAD6] rounded-t-md"> {/* Removed p-4, kept px-4 py-2 */}
               <div className="flex-1 pr-2">Client Name</div>
               <div className="flex-1 px-2">Service</div>
               <div className="w-24 text-right pl-2">Logged At</div> {/* Fixed width for time */}
@@ -87,7 +88,7 @@ export default function ServiceLogs() {
               logs.slice(0, 5).map((l: ServiceLog, i: number) => (
                 <motion.div
                   key={l.uuid || i}
-                  className="flex items-center justify-between p-4 text-sm" // Use flex for columns
+                  className="flex items-center justify-between px-4 py-3 text-sm" // Adjusted padding
                   initial={{ opacity: 0, x: 20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}

@@ -200,7 +200,7 @@ export default function AddClientForm({ open, onOpenChange, onSuccess }: AddClie
           </div>
           <DialogFooter>
             <DialogClose asChild>
-              <Button type="button" variant="outline" onClick={resetForm}>Cancel</Button>
+              <Button type="button" variant="outline" onClick={resetForm} classname="bg-[#07A950] hover:bg-[#057a3a]">Cancel</Button>
             </DialogClose>
             <Button type="submit" disabled={!isSubmittable}>
               Add Client
