@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Sidebar,
@@ -20,6 +20,7 @@ import { Home, User, Settings, LogOut, PanelLeft, MessageSquare, LayoutDashboard
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useIsExpanded } from '@/lib/atom';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 export function AccountSidebar() {
   const [isExpanded, setIsExpanded] = useIsExpanded();
@@ -27,8 +28,30 @@ export function AccountSidebar() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  const auth = getAuth();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        console.log("User is signed in:", currentUser);
+      } else {
+        setUser(null);
+        console.log("User is signed out");
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [auth, router]);
+
   const handleSignOut = async () => {
-    console.log("Signing out...");
+    try {
+      await auth.signOut();
+      console.log("Signed out successfully");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   }
 
   const getUserInitials = () => {
@@ -49,9 +72,11 @@ export function AccountSidebar() {
 
   return (
     <Sidebar
-      className={`transition-all duration-100 overflow-hidden scrollbar-none ${isExpanded ? 'w-64' : 'w-16'} border-r`}
+      variant="floating"
+      className={`transition-all duration-100 overflow-hidden scrollbar-none ${isExpanded ? 'w-64' : 'w-16'
+        } bg-gradient-to-b from-[#FEFEFE] to-[#D3E7C8]`} // Gradient applied always
     >
-      <SidebarHeader>
+      <SidebarHeader className='bg-[#FEFEFE]'>
         <div className={`p-2 flex items-center ${isExpanded ? 'justify-between' : 'justify-center'}`}>
           {isExpanded && <p className='font-bold'>Fourth and Hope</p>}
           <Button
@@ -66,16 +91,12 @@ export function AccountSidebar() {
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="flex-grow">
+      <SidebarContent className="flex-grow bg-gradient-to-b from-[#FEFEFE] to-[#D3E7C8]"> {/* Ensure no gradient class here */}
         <SidebarGroup>
-          <nav className="space-y-1 p-2">
+          <nav className={`space-y-1 p-2 ${!isExpanded ? 'flex flex-col items-center' : ''}`}>
             <Link href="/dashboard" className={`flex items-center rounded-md text-sm hover:bg-secondary ${isExpanded ? 'space-x-3 p-2' : 'w-8 h-8 justify-center p-0'}`}>
               <LayoutDashboard className="h-5 w-5 min-w-[20px]" />
               <span className={`transition-opacity duration-100 ${isExpanded ? 'opacity-100 delay-75' : 'opacity-0 w-0'}`}>Dashboard</span>
-            </Link>
-            <Link href="/announcements" className={`flex items-center rounded-md text-sm hover:bg-secondary ${isExpanded ? 'space-x-3 p-2' : 'w-8 h-8 justify-center p-0'}`}>
-              <LayoutDashboard className="h-5 w-5 min-w-[20px]" />
-              <span className={`transition-opacity duration-100 ${isExpanded ? 'opacity-100 delay-75' : 'opacity-0 w-0'}`}>Announcements</span>
             </Link>
             <Link href="/analytics" className={`flex items-center rounded-md text-sm hover:bg-secondary ${isExpanded ? 'space-x-3 p-2' : 'w-8 h-8 justify-center p-0'}`}>
               <LayoutDashboard className="h-5 w-5 min-w-[20px]" />
@@ -97,22 +118,16 @@ export function AccountSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="mt-auto border-t">
-        <div className={`flex items-center p-3 ${isExpanded ? 'gap-3' : 'justify-center'}`}>
-          <span className={`text-sm transition-opacity duration-100 ${isExpanded ? 'opacity-100 delay-75' : 'opacity-0 w-0'}`}>
-            Theme
-          </span>
-        </div>
-
+      <SidebarFooter className="mt-auto bg-gradient-to-b from-[#D3E7C8] to-[#D3E7C8]"> {/* Ensure no gradient class here */}
         {!loading && user && (
-          <div className={`p-2 flex items-center ${!isExpanded ? 'flex justify-center pl-4' : ''}`}>
+          <div className={`p-2 flex items-center ${!isExpanded ? 'flex justify-center' : ''}`}>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className={`flex items-center p-2 ${isExpanded
+                  className={`flex items-center p-2 hover:bg-[#B5D0A9] dark:hover:bg-green-800/40 ${isExpanded
                     ? 'w-full justify-start gap-4'
-                    : 'justify-center h-10 w-7 rounded-full'
+                    : 'justify-center h-8 w-8'
                     }`}
                 >
                   <Avatar className={`h-7 w-7`}>
@@ -130,17 +145,6 @@ export function AccountSidebar() {
               <DropdownMenuContent side="right" align="start" className="mb-2 w-56">
                 <DropdownMenuItem disabled className="text-xs text-muted-foreground">
                   {user.email}
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/account" className="w-full cursor-pointer">
-                    Dashboard
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/account/chat" className="w-full cursor-pointer">
-                    Talk to Minerva
-                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-100 dark:focus:bg-red-900/50">
