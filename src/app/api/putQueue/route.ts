@@ -1,17 +1,27 @@
-import { doc, setDoc } from 'firebase/firestore'
-import { NextRequest } from 'next/server'
-import { db } from '@/firebase/config'
+// src/app/api/putQueue/route.ts
 
-export default async function PUT(req: NextRequest) {
+import { NextRequest, NextResponse } from "next/server";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "@/firebase/config";
+
+// ▲ Named export — Next will wire this up to PUT /api/putQueue
+export async function PUT(req: NextRequest) {
   try {
-    const body = await req.json()
-    const { type, name, uuid, createdAt } = body
+    const { type, name, uuid, createdAt } = await req.json();
 
-    const docRef = doc(db, 'BaseQueue', type)
-    await setDoc(docRef, type)
-    return new Response('Queue updated successfully', { status: 200 })
+    // write a document under collection "BaseQueue" and doc ID = `type`
+    const docRef = doc(db, "BaseQueue", type);
+    await setDoc(docRef, { name, uuid, createdAt });
+
+    return NextResponse.json(
+      { message: "Queue updated successfully" },
+      { status: 200 }
+    );
   } catch (error) {
-    console.error('Error updating queue:', error)
-    return new Response('Failed to update queue', { status: 500 })
+    console.error("Error updating queue:", error);
+    return NextResponse.json(
+      { error: "Failed to update queue" },
+      { status: 500 }
+    );
   }
 }
