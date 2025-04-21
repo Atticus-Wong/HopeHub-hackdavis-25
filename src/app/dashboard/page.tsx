@@ -14,7 +14,7 @@ import { Card } from "@/components/ui/card";
 import {
   handleFetchData,
   handleFetchQueueMeals,
-  handleFetchQueueShower
+  handleFetchQueueShower,
 } from "@/lib/endpoint";
 import { ServiceLog, BaseQueue } from "@/types/types";
 import Queue from "@/components/Queue";
@@ -53,7 +53,7 @@ export default function Dashboard() {
       } else {
         setUser(null);
         console.log("User is not authenticated, redirecting to login.");
-        router.push('/login'); // Redirect to login if not authenticated
+        router.push("/login"); // Redirect to login if not authenticated
       }
       setAuthLoading(false); // Auth check finished
     });
@@ -66,9 +66,9 @@ export default function Dashboard() {
   const fetchDashboardData = useCallback(async () => {
     // Only fetch data if authenticated
     if (!user) {
-        console.log("Skipping data fetch: User not authenticated.");
-        setIsLoading(false); // Ensure loading state is false if we skip fetch
-        return;
+      console.log("Skipping data fetch: User not authenticated.");
+      setIsLoading(false); // Ensure loading state is false if we skip fetch
+      return;
     }
 
     setIsLoading(true);
@@ -77,8 +77,16 @@ export default function Dashboard() {
 
     try {
       const [clientListData, logsData] = await Promise.all([
-        handleFetchData().catch(err => { console.error("Error fetching directory:", err); return undefined; }),
-        fetch('/api/fetchServiceLogs').then(res => res.ok ? res.json() : Promise.reject(res)).catch(err => { console.error("Error fetching logs:", err); return { logs: [] }; }),
+        handleFetchData().catch((err) => {
+          console.error("Error fetching directory:", err);
+          return undefined;
+        }),
+        fetch("/api/fetchServiceLogs")
+          .then((res) => (res.ok ? res.json() : Promise.reject(res)))
+          .catch((err) => {
+            console.error("Error fetching logs:", err);
+            return { logs: [] };
+          }),
       ]);
 
       if (clientListData) {
@@ -87,12 +95,11 @@ export default function Dashboard() {
 
         // Update the clientMap state
         const newClientMap = new Map<string, string>();
-        clientListData.forEach(client => {
+        clientListData.forEach((client) => {
           newClientMap.set(client.name, client.id);
         });
         setClientMap(newClientMap);
         console.log("Client map updated:", newClientMap); // Optional: log the updated map
-
       } else {
         console.log("Directory data fetch returned undefined.");
         setDirectory([]);
@@ -101,7 +108,6 @@ export default function Dashboard() {
 
       console.log("Logs data fetched:", logsData);
       setLogs(logsData?.logs || []);
-
     } catch (err) {
       console.error("Error during data fetch:", err);
       setError("Failed to load dashboard data.");
@@ -123,8 +129,8 @@ export default function Dashboard() {
 
   const suggestions = term
     ? directory
-      .filter((c) => c.name.toLowerCase().includes(term.toLowerCase()))
-      .slice(0, 8)
+        .filter((c) => c.name.toLowerCase().includes(term.toLowerCase()))
+        .slice(0, 8)
     : [];
 
   const handleSelect = (uuid: string) => {
@@ -152,7 +158,9 @@ export default function Dashboard() {
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="animate-pulse text-muted-foreground">Checking authentication...</p>
+        <p className="animate-pulse text-muted-foreground">
+          Checking authentication...
+        </p>
       </div>
     );
   }
@@ -177,7 +185,7 @@ export default function Dashboard() {
             {/* Greeting */}
             <p className="text-lg font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
               {/* Use user's display name or email */}
-              Hello, {user.displayName || user.email || 'User'}
+              Hello, {user.displayName || user.email || "User"}
             </p>
 
             {/* Search */}
@@ -204,7 +212,11 @@ export default function Dashboard() {
                   <motion.ul
                     key="dropdown"
                     initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0, transition: { duration: 0.2 } }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                      transition: { duration: 0.2 },
+                    }}
                     exit={{ opacity: 0, y: 10, transition: { duration: 0.15 } }}
                     className="absolute left-0 right-0 top-full z-50 mt-1 max-h-60 overflow-y-auto rounded-md border bg-white shadow-xl dark:bg-gray-800 dark:border-gray-700"
                   >
