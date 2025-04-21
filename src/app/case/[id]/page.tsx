@@ -1,5 +1,7 @@
+// File: src/app/case/[id]/page.tsx
 "use client";
 
+import { useParams } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -93,17 +95,26 @@ const mockCases: Record<string, CaseData> = {
   },
 };
 
-export default function CaseDetails({ params }: { params: { id: string } }) {
-  const data = mockCases[params.id];
-  // State hooks must be at the top
+export default function CaseDetailsPage() {
+  const params = useParams();
+  const id = params?.id as string | undefined;
+
+  const data = id ? mockCases[id] : undefined;
+
+  // Client‑side state for action items & notes
   const [items, setItems] = useState(
     () => data?.actionItems.map((text) => ({ text, done: false })) ?? []
   );
-  const [notes, setNotes] = useState(() => data?.notes ?? "");
+  const [notes, setNotes] = useState(data?.notes ?? "");
   const [editingNotes, setEditingNotes] = useState(false);
 
+  // If routerless render or missing id
+  if (!id) {
+    return <p className="p-6">No case ID provided.</p>;
+  }
+
   if (!data) {
-    return <p className="p-6">Case not found</p>;
+    return <p className="p-6">Case not found.</p>;
   }
 
   const toggleDone = (idx: number) =>
@@ -123,12 +134,10 @@ export default function CaseDetails({ params }: { params: { id: string } }) {
 
   return (
     <main className="container mx-auto max-w-xl space-y-6 p-6 bg-green-50 rounded-lg">
-      {/* Back */}
       <Link href="/case" className="text-blue-600 hover:underline">
         ← Back to My Cases
       </Link>
 
-      {/* Header */}
       <section>
         <h1 className="text-2xl font-bold text-green-800">{data.clientName}</h1>
         <p className="text-gray-700">{data.caseTitle}</p>
@@ -140,7 +149,6 @@ export default function CaseDetails({ params }: { params: { id: string } }) {
         </div>
       </section>
 
-      {/* Dates */}
       <section className="space-y-1 text-gray-800">
         <p>
           <span className="font-semibold">Date Started:</span> {data.startDate}
@@ -151,7 +159,6 @@ export default function CaseDetails({ params }: { params: { id: string } }) {
         </p>
       </section>
 
-      {/* Action Items */}
       <section className="space-y-2">
         <div className="flex items-center justify-between">
           <p className="font-semibold">Action Items:</p>
@@ -185,11 +192,10 @@ export default function CaseDetails({ params }: { params: { id: string } }) {
         </ul>
       </section>
 
-      {/* Notes */}
       <section className="space-y-2">
         <div className="flex items-center justify-between">
           <p className="font-semibold">Notes:</p>
-          <Button size="sm" onClick={() => setEditingNotes((e) => !e)}>
+          <Button size="sm" onClick={() => setEditingNotes((f) => !f)}>
             {editingNotes ? "Save" : "Edit"}
           </Button>
         </div>
@@ -207,7 +213,6 @@ export default function CaseDetails({ params }: { params: { id: string } }) {
         )}
       </section>
 
-      {/* Documents */}
       <section>
         <p className="font-semibold">Documents:</p>
         <p className="text-gray-500">No documents attached yet.</p>
