@@ -143,22 +143,13 @@ ${bodyTex}
 
   try {
     await execAsync(`tectonic --outdir=. ${texFile}`);
-    // Only rename if the intermediate PDF exists
     await rename(intermediatePdf, finalPdf);
     console.log(`🎉 PDF ready: ${finalPdf}`);
+    return finalPdf; // <- return filename to API
   } catch (err) {
     console.error("🚨 Tectonic error:", err);
-    const all = await import("fs/promises").then((m) =>
-      m.readFile(texFile, "utf8")
-    );
-    console.error("── report.tex (lines 15–25) ──");
-    console.error(all.split("\n").slice(14, 25).join("\n"));
+    throw err;
   } finally {
     await unlink(texFile).catch(() => {});
   }
 }
-
-main().catch((err) => {
-  console.error("🚨 Grant‑report pipeline failed:", err);
-  process.exit(1);
-});
