@@ -66,9 +66,12 @@ export default function AnalyticsPage() {
   const handleGenerateReport = async () => {
     try {
       setIsLoading(true);
-      const res = await fetch("https://hopehub-flask-server.onrender.com", {
-        method: "POST",
-      });
+      const res = await fetch(
+        "https://hopehub-flask-server.onrender.com/generate-report",
+        {
+          method: "POST",
+        }
+      );
 
       if (!res.ok) throw new Error(`Server ${res.status}`);
       const blob = await res.blob();
