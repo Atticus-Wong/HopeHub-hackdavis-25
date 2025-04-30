@@ -7,6 +7,7 @@ import json
 import re
 from dotenv import load_dotenv
 import google.generativeai as genai
+from tectonic import run as tectonic_run
 
 load_dotenv()
 
@@ -20,7 +21,6 @@ if not GEMINI_API_KEY:
 
 genai.configure(api_key=GEMINI_API_KEY)
 
-TECTONIC_BIN = "/opt/render/project/.cargo/bin/tectonic"
 
 SYSTEM_PROMPT = """
 You are a Grant Reporting Assistant working on behalf of Fourth & Hope — a nonprofit organization based in Woodland and Yolo County, California.
@@ -152,21 +152,16 @@ def generate_report():
             with open(tex_path, "w") as f:
                 f.write(full_tex)
 
-            result = subprocess.run(
-                [TECTONIC_BIN, tex_path],
-                cwd=tmpdir,
-                capture_output=True,
-                text=True
-            )
-
-            if result.returncode != 0:
-                error_msg = result.stderr.strip() or "Tectonic returned no stderr"
-                print("🚨 Tectonic Error:\n", error_msg)
+            try:
+                tectonic_run([tex_path], working_directory=tmpdir)
+            except Exception as e:
+                print("🚨 Tectonic Error:\n", str(e))
                 print("📄 LaTeX (first 20 lines):\n", "\n".join(full_tex.splitlines()[:20]))
                 return jsonify({
                     "error": "Tectonic compilation failed.",
-                    "stderr": error_msg
+                    "stderr": str(e)
                 }), 500
+
 
             if not os.path.exists(pdf_path):
                 return jsonify({
