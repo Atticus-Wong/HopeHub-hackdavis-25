@@ -17,7 +17,10 @@ GEMINI_API_KEY = os.getenv("GOOGLE_API_KEY")
 if not GEMINI_API_KEY:
     raise RuntimeError("GOOGLE_API_KEY environment variable not set")
 
+
 genai.configure(api_key=GEMINI_API_KEY)
+
+TECTONIC_BIN = "/opt/render/project/.cargo/bin/tectonic"
 
 SYSTEM_PROMPT = """
 You are a Grant Reporting Assistant working on behalf of Fourth & Hope — a nonprofit organization based in Woodland and Yolo County, California.
@@ -150,7 +153,7 @@ def generate_report():
                 f.write(full_tex)
 
             result = subprocess.run(
-                ["tectonic", tex_path],
+                [TECTONIC_BIN, tex_path],
                 cwd=tmpdir,
                 capture_output=True,
                 text=True
