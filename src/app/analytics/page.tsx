@@ -66,7 +66,10 @@ export default function AnalyticsPage() {
   const handleGenerateReport = async () => {
     try {
       setIsLoading(true);
-      const res = await fetch("/api/generate-grant-report", { method: "POST" });
+      const res = await fetch("http://127.0.0.1:8080/generate-report", {
+        method: "POST",
+      });
+
       if (!res.ok) throw new Error(`Server ${res.status}`);
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
